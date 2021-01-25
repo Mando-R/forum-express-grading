@@ -19,3 +19,5 @@ module.exports = app => {
   app.get("/admin/restaurants", adminController.getRestaurants)
 
 }
+
+
