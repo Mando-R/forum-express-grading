@@ -17,6 +17,19 @@
   <main role="main">
     <div class="album py-5 bg-light">
       <div class="container">
+        <!-- success_messages 和 error_messages：即顯示 flash 訊息的地方，透過 if 條件式，限定只有當訊息存在時，即controller 內有特別存入訊息時，才顯示flash -->
+        {{#if success_messages}}
+        <div class="alert alert-success" role="alert" style="margin: 30px 0 ;">
+          {{success_messages}}
+        </div>
+        {{/if}}
+
+        {{#if error_messages}}
+        <div class="alert alert-danger" role="alert" style="margin: 30px 0 ;">
+          {{error_messages}}
+        </div>
+        {{/if}}
+
         <!-- render -> Handlebars -->
         <!-- 1. 前台：restaurants.handlebars -->
         <!-- 2. 後台：admin/restaurants.handlebars -->

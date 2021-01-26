@@ -3,9 +3,8 @@ const handlebars = require("express-handlebars")
 const app = express()
 const port = 3000
 const bodyParser = require("body-parser")
-
-// app.use
-app.use(bodyParser.urlencoded({ extended: true }))
+const flash = require("connect-flash")
+const session = require("express-session")
 
 // Handlebars
 app.engine("handlebars", handlebars({ defaultLayout: "main.handlebars" }))
@@ -14,6 +13,23 @@ app.set("view engine", "handlebars")
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}!`)
+})
+
+// app.use
+// (1) bodyParser
+app.use(bodyParser.urlencoded({ extended: true }))
+// (2) express-session
+app.use(session({ secret: "secret", resave: false, saveUninitialized: false }))
+// (3) connect-flash
+app.use(flash())
+// [app.js] res.locals -> [Controllers] req.flash -> [Views] Handlebars
+app.use((req, res, next) => {
+  // req.flash 放入 res.locals 內
+  // res.locals：view 專用的 res.locals，只要把資料放入 res.locals，View 也能存取。
+  res.locals.success_messages = req.flash("success_messages")
+  res.locals.error_messages = req.flash("error_messages")
+
+  next()
 })
 
 // 1. routes/index.js 用 module.exports 匯出 Route 設定，接著到 app.js 透過 require 引入 function。
