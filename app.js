@@ -5,6 +5,34 @@ const port = 3000
 const bodyParser = require("body-parser")
 const flash = require("connect-flash")
 const session = require("express-session")
+const passport = require("./config/passport.js")
+
+// app.use
+// (1) bodyParser
+app.use(bodyParser.urlencoded({ extended: true }))
+
+// (2) express-session
+app.use(session({ secret: "secret", resave: false, saveUninitialized: false }))
+
+// (3) connect-flash
+app.use(flash())
+// [app.js] res.locals -> [Controllers] req.flash -> [Views] Handlebars
+app.use((req, res, next) => {
+  // req.flash 放入 res.locals 內
+  // res.locals：view 專用的 res.locals，只要把資料放入 res.locals，使 View 也能存取。
+  res.locals.success_messages = req.flash("success_messages")
+  res.locals.error_messages = req.flash("error_messages")
+
+
+
+  next()
+})
+
+// (4) passport
+// 初始化 Passport
+app.use(passport.initialize())
+// 啟動 session 功能，這組設定務必要放在 session() 之後
+app.use(passport.session())
 
 // Handlebars
 app.engine("handlebars", handlebars({ defaultLayout: "main.handlebars" }))
@@ -13,23 +41,6 @@ app.set("view engine", "handlebars")
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}!`)
-})
-
-// app.use
-// (1) bodyParser
-app.use(bodyParser.urlencoded({ extended: true }))
-// (2) express-session
-app.use(session({ secret: "secret", resave: false, saveUninitialized: false }))
-// (3) connect-flash
-app.use(flash())
-// [app.js] res.locals -> [Controllers] req.flash -> [Views] Handlebars
-app.use((req, res, next) => {
-  // req.flash 放入 res.locals 內
-  // res.locals：view 專用的 res.locals，只要把資料放入 res.locals，View 也能存取。
-  res.locals.success_messages = req.flash("success_messages")
-  res.locals.error_messages = req.flash("error_messages")
-
-  next()
 })
 
 // 1. routes/index.js 用 module.exports 匯出 Route 設定，接著到 app.js 透過 require 引入 function。
@@ -41,6 +52,6 @@ app.use((req, res, next) => {
 // 4. 注意：require('./routes')(app) 需放在 app.js 最後一行，因按照由上而下順序，當 app.js 把 app(即 express()) 傳入 Route 時，程式中間(routes/index.js)做的 Handlebars 設定、Server 設定，也一併透過 app 變數傳入。
 
 // 引入 routes 並將 app 傳進去，讓 routes 可以用 app 這個物件來指定路由
-require("./routes")(app)
+require("./routes")(app, passport) // 把 passport 傳入 routes
 
 module.exports = app

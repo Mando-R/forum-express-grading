@@ -5,6 +5,7 @@ const bcrypt = require("bcryptjs")
 const db = require("../models")
 const User = db.User
 
+//注意：render 檔案、redirect 路由
 const userController = {
   // signUpPage：render -> 註冊頁
   signUpPage: (req, res) => {
@@ -42,6 +43,23 @@ const userController = {
           }
         })
     }
+  },
+
+  // signInPage：render -> 登入頁
+  signInPage: (req, res) => {
+    return res.render("signin.handlebars")
+  },
+
+  // signIn 動作裡看起來沒有任何的邏輯，就直接轉址了，這是因為特下我們會用 Passport 的 middleware 來處理，所以不必自己實作。
+  signIn: (req, res) => {
+    req.flash("success_messages", `成功登入!`)
+    res.redirect("/restaurants")
+  },
+
+  logout: (req, res) => {
+    req.flash("success_messages", `登出成功!`)
+    req.logout()
+    res.redirect("/signin")
   }
 }
 

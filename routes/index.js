@@ -5,7 +5,8 @@ const adminController = require("../controllers/adminController.js")
 const userController = require("../controllers/userController.js")
 
 // module.exports：匯出　Route 設定
-module.exports = app => {
+// 注意：(app, passport)：接收 app 和 passport
+module.exports = (app, passport) => {
 
   // 1. 前台 restController
   app.get("/", (req, res) => res.redirect("/restaurants"))
@@ -20,12 +21,18 @@ module.exports = app => {
 
   app.get("/admin/restaurants", adminController.getRestaurants)
 
-  // 3. User 註冊流程
+  // 3. Sign-up：User 註冊流程
   app.get("/signup", userController.signUpPage)
 
   app.post("/signup", userController.signUp)
 
+  // 4. Sign-in [passport 驗證] & Log-out
+  app.get("/signin", userController.signInPage)
 
+  app.post("/signin", passport.authenticate("local",
+    { failureRedirect: "/signin", failureflash: true }), userController.signIn)
+
+  app.get("/logout", userController.logout)
 
 }
 
