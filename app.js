@@ -2,7 +2,10 @@ const express = require("express")
 const handlebars = require("express-handlebars")
 const app = express()
 const port = 3000
+const bodyParser = require("body-parser")
 
+// app.use
+app.use(bodyParser.urlencoded({ extended: true }))
 
 // Handlebars
 app.engine("handlebars", handlebars({ defaultLayout: "main.handlebars" }))
