@@ -5,7 +5,7 @@ const adminController = {
   // (2) 為Controller(adminController)內的一個 Action。
   getRestaurants: (req, res) => {
     // adminController.js 和 admin[Folder] 同一層
-    return res.render("admin/restaurants.handlebars")
+    return res.render("admin/restaurants")
   }
 }
 
