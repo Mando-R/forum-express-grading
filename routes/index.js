@@ -51,6 +51,9 @@ module.exports = (app, passport) => {
 
   app.post("/admin/restaurants", authenticatedAdmin, adminController.postRestaurant)
 
+  // 瀏覽一筆餐廳資料：動態路由:id -> req.params.id
+  app.get("/admin/restaurants/:id", authenticatedAdmin, adminController.getRestaurant)
+
   // 3. Sign-up [User 註冊流程]
   app.get("/signup", userController.signUpPage)
 

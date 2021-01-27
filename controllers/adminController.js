@@ -24,7 +24,8 @@ const adminController = {
   postRestaurant: (req, res) => {
     if (!req.body.name) {
       req.flash("error_messages", `Name didn't exist`)
-      // 注意：POST 動作結束後，若未填 name，則導回原 create 頁面("admin/create")。
+      // 注意：res.redirect("back")：
+      // POST 動作結束後，若未填 name，則導回原 create 頁面("admin/create")。
       return res.redirect("back")
     }
     // Restaurant Model 建立一個新 restaurant，並將表單傳來的資料(req.body.XXX)填入新的 restaurant。
@@ -40,8 +41,17 @@ const adminController = {
         // 重新導回後台首頁，立即看到新增後的結果。
         res.redirect("/admin/restaurants")
       })
-  }
+  },
 
+  // 瀏覽一筆餐廳資料：動態路由:id -> req.params.id
+  getRestaurant: (req, res) => {
+    // req.params.id：從 Route 傳過來的參數
+    // {raw: true}：轉換成 JS plain object。
+    return Restaurant.findByPk(req.params.id, { raw: true })
+      .then(restaurant => {
+        return res.render("admin/restaurant", { restaurant: restaurant })
+      })
+  }
 }
 
 // 匯出 restController 物件{}：
