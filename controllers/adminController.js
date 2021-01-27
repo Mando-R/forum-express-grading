@@ -1,11 +1,18 @@
+// 引入 Restaurant Model
+const db = require("../models")
+const Restaurant = db.Restaurant
 
 const adminController = {
   // getRestaurants：
   // (1) 為一個 function，負責[瀏覽餐廳頁面]，render -> restaurants 的 Handlebars。
   // (2) 為Controller(adminController)內的一個 Action。
   getRestaurants: (req, res) => {
-    // adminController.js 和 admin[Folder] 同一層
-    return res.render("admin/restaurants")
+    // .findAll({ raw: true })：查找全部、轉成 plain object。
+    return Restaurant.findAll({ raw: true })
+      .then(restaurants => {
+        // adminController.js 和 admin[Folder] 同一層
+        return res.render("admin/restaurants", { restaurants: restaurants })
+      })
   }
 }
 
