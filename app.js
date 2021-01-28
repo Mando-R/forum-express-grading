@@ -7,6 +7,7 @@ const bodyParser = require("body-parser")
 const flash = require("connect-flash")
 const session = require("express-session")
 const passport = require("./config/passport.js")
+const methodOverride = require("method-override")
 
 // app.use
 // (1) bodyParser
@@ -21,6 +22,9 @@ app.use(passport.initialize())
 // 啟動 session 功能，這組設定務必要放在 session() 之後
 app.use(passport.session())
 
+// (5) method-override
+app.use(methodOverride("_method"))
+
 // (3) connect-flash：注意 放在 passport 後面，res.locals.user 才能傳給 Views。
 app.use(flash())
 // [app.js] res.locals -> [Controllers] req.flash -> [Views] Handlebars
@@ -30,7 +34,6 @@ app.use((req, res, next) => {
   res.locals.success_messages = req.flash("success_messages")
   res.locals.error_messages = req.flash("error_messages")
 
-  // 
   res.locals.user = req.user
 
   next()

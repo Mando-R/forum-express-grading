@@ -46,13 +46,19 @@ module.exports = (app, passport) => {
 
   app.get("/admin/restaurants", authenticatedAdmin, adminController.getRestaurants)
 
-  // 新增一筆餐廳資料
+  // [Create]新增一筆餐廳資料
   app.get("/admin/restaurants/create", authenticatedAdmin, adminController.createRestaurant)
 
   app.post("/admin/restaurants", authenticatedAdmin, adminController.postRestaurant)
 
-  // 瀏覽一筆餐廳資料：動態路由:id -> req.params.id
+  // [Read/Detail、Show]瀏覽一筆餐廳資料：動態路由:id -> req.params.id
   app.get("/admin/restaurants/:id", authenticatedAdmin, adminController.getRestaurant)
+
+  // [Edit/Update]編輯一筆餐廳資料(1)
+  app.get("/admin/restaurants/:id/edit", authenticatedAdmin, adminController.editRestaurant)
+
+  // [Edit/Update]編輯一筆餐廳資料(2)
+  app.put("/admin/restaurants/:id", authenticatedAdmin, adminController.putRestaurant)
 
   // 3. Sign-up [User 註冊流程]
   app.get("/signup", userController.signUpPage)

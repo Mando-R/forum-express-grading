@@ -25,18 +25,21 @@
       <td>{{this.name}}</td>
 
       <td>
+        <!-- Detail/Show 按鈕 -->
         <button type="button" class="btn btn-link">
           <a href="/admin/restaurants/{{this.id}}">
             Show
           </a>
         </button>
 
+        <!-- Edit/Update 按鈕 -->
         <button type="button" class="btn btn-link">
           <a href="/admin/restaurants/{{this.id}}/edit">
             Edit
           </a>
         </button>
 
+        <!-- Delete 按鈕 -->
         <form action="/admin/restaurants/{{this.id}}?_method=DELETE" method="POST" style="display: inline;">
           <button type="submit" class="btn btn-link">Delete</button>
 

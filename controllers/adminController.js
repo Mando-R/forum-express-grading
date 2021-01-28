@@ -15,12 +15,12 @@ const adminController = {
       })
   },
 
-  // 新增一筆餐廳資料(1)：render -> create 頁面 [顯示頁面，非功能(POST動作)]
+  // [Create]新增一筆餐廳資料(1)：render -> create 頁面 [顯示頁面，非功能(POST動作)]
   createRestaurant: (req, res) => {
-    return res.render("admin/create")
+    return res.render("admin/create.handlebars")
   },
 
-  // 新增一筆餐廳資料(2)：create 功能 [POST 動作]
+  // [Create]新增一筆餐廳資料(2)：create 功能 [POST]
   postRestaurant: (req, res) => {
     if (!req.body.name) {
       req.flash("error_messages", `Name didn't exist`)
@@ -37,21 +37,63 @@ const adminController = {
       description: req.body.description
     })
       .then((restaurant) => {
-        req.flash("success_message", `Restaurant was successfully created`)
+        req.flash("success_messages", `Restaurant was successfully created`)
         // 重新導回後台首頁，立即看到新增後的結果。
-        res.redirect("/admin/restaurants")
+        res.redirect("/admin/restaurants.handlebars")
       })
   },
 
-  // 瀏覽一筆餐廳資料：動態路由:id -> req.params.id
+  // [Read]瀏覽一筆餐廳資料：動態路由:id -> req.params.id
   getRestaurant: (req, res) => {
     // req.params.id：從 Route 傳過來的參數
     // {raw: true}：轉換成 JS plain object。
     return Restaurant.findByPk(req.params.id, { raw: true })
       .then(restaurant => {
-        return res.render("admin/restaurant", { restaurant: restaurant })
+        return res.render("admin/restaurant.handlebars", { restaurant: restaurant })
       })
+  },
+
+  // [Update]編輯一筆餐廳資料(1)：render -> create 頁面
+  editRestaurant: (req, res) => {
+    return Restaurant.findByPk(req.params.id, { raw: true })
+      .then(restaurant => {
+        // 注意：render -> admin/create 頁面。
+        // [Update]和[Create]表單類似，所以在[Create]表單做一點修改，之後只需維護一個表單！
+        return res.render("admin/create.handlebars", { restaurant: restaurant })
+      })
+  },
+
+  // [Update]編輯一筆餐廳資料(2)：Update 功能 [PUT]
+  putRestaurant: (req, res) => {
+    if (!req.body.name) {
+      req.flash("error_messages", `Name didn't exist`)
+      return res.redirect("back")
+    }
+
+    return Restaurant.findByPk(req.params.id)
+      .then(restaurant => {
+        // restaurant.update：Update 資料
+        restaurant.update({
+          name: req.body.name,
+          tel: req.body.tel,
+          address: req.body.address,
+          opening_hours: req.body.opening_hours,
+          description: req.body.description
+        })
+          .then(restaurant => {
+            req.flash("success_messages", `restaurant was successfully to update`)
+
+            res.redirect("/admin/restaurants")
+
+          })
+      })
+
   }
+
+
+
+
+
 }
 
 // 匯出 restController 物件{}：
