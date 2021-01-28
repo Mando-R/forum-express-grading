@@ -39,6 +39,12 @@ app.use((req, res, next) => {
   next()
 })
 
+// (6) multeer(image)：設定靜態檔案路徑 /upload
+// 加上 Route："/upload"，因為是靜態檔案，所以不需像其他 Route 路由一樣寫 Controller 邏輯，直接用 express.static 指定路徑即可。
+app.use("/upload", express.static(__dirname + "/upload"))
+
+
+
 
 // Handlebars
 app.engine("handlebars", handlebars({ defaultLayout: "main.handlebars" }))

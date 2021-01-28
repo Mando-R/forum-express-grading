@@ -2,6 +2,9 @@
 const db = require("../models")
 const Restaurant = db.Restaurant
 
+// 引入 multer 套件的 fs 模組
+const fs = require("fs")
+
 const adminController = {
   // getRestaurants：
   // (1) 為一個 function，負責[瀏覽餐廳頁面]，render -> restaurants 的 Handlebars。
@@ -28,19 +31,49 @@ const adminController = {
       // POST 動作結束後，若未填 name，則導回原 create 頁面("admin/create")。
       return res.redirect("back")
     }
-    // Restaurant Model 建立一個新 restaurant，並將表單傳來的資料(req.body.XXX)填入新的 restaurant。
-    return Restaurant.create({
-      name: req.body.name,
-      tel: req.body.tel,
-      address: req.body.address,
-      opening_hours: req.body.opening_hours,
-      description: req.body.description
-    })
-      .then((restaurant) => {
-        req.flash("success_messages", `Restaurant was successfully created`)
-        // 重新導回後台首頁，立即看到新增後的結果。
-        res.redirect("/admin/restaurants.handlebars")
+
+    // destructuring(解構賦值)：const file = req.file
+    const { file } = req
+    // 1. 若有圖片：
+    if (file) {
+      // 2. fs(file system)[node.js 內建讀檔 模組]：讀取 [temp 資料夾]內 圖片
+      fs.readFile(file.path, (err, data) => {
+        if (err) console.log('Error: ', err)
+
+        // 3. 寫入正式 [upload 資料夾]
+        fs.writeFile(`upload/${file.originalname}`, data, () => {
+          // 4. 將 "檔案路徑" 寫入 restaurant.image。
+          return Restaurant.create({
+            name: req.body.name,
+            tel: req.body.tel,
+            address: req.body.address,
+            opening_hours: req.body.opening_hours,
+            description: req.body.description,
+            image: file ? `/upload/${file.originalname}` : null
+          })
+            .then((restaurant) => {
+              req.flash('success_messages', 'restaurant was successfully created')
+              return res.redirect('/admin/restaurants')
+            })
+        })
       })
+
+    } else {
+      // Restaurant Model 建立一個新 restaurant，並將表單傳來的資料(req.body.XXX)填入新的 restaurant。
+      return Restaurant.create({
+        name: req.body.name,
+        tel: req.body.tel,
+        address: req.body.address,
+        opening_hours: req.body.opening_hours,
+        description: req.body.description,
+        image: null
+      })
+        .then((restaurant) => {
+          req.flash('success_messages', 'restaurant was successfully created')
+          // 重新導回後台首頁，立即看到新增後的結果。
+          return res.redirect('/admin/restaurants')
+        })
+    }
   },
 
   // [Read]瀏覽一筆餐廳資料：動態路由:id -> req.params.id
@@ -70,23 +103,49 @@ const adminController = {
       return res.redirect("back")
     }
 
-    return Restaurant.findByPk(req.params.id)
-      .then(restaurant => {
-        // restaurant.update：Update 資料
-        restaurant.update({
-          name: req.body.name,
-          tel: req.body.tel,
-          address: req.body.address,
-          opening_hours: req.body.opening_hours,
-          description: req.body.description
+    const { file } = req
+    if (file) {
+      fs.readFile(file.path, (err, data) => {
+        if (err) console.log('Error: ', err)
+
+        fs.writeFile(`upload/${file.originalname}`, data, () => {
+          return Restaurant.findByPk(req.params.id)
+            .then((restaurant) => {
+              restaurant.update({
+                name: req.body.name,
+                tel: req.body.tel,
+                address: req.body.address,
+                opening_hours: req.body.opening_hours,
+                description: req.body.description,
+                image: file ? `/upload/${file.originalname}` : restaurant.image
+              }).then((restaurant) => {
+                req.flash('success_messages', 'restaurant was successfully to update')
+                res.redirect('/admin/restaurants')
+              })
+            })
         })
-          .then(restaurant => {
-            req.flash("success_messages", `restaurant was successfully to update`)
-
-            res.redirect("/admin/restaurants")
-
-          })
       })
+
+    } else {
+      return Restaurant.findByPk(req.params.id)
+        .then((restaurant) => {
+          // restaurant.update：Update 資料
+          restaurant.update({
+            name: req.body.name,
+            tel: req.body.tel,
+            address: req.body.address,
+            opening_hours: req.body.opening_hours,
+            description: req.body.description,
+            image: restaurant.image
+          })
+            .then((restaurant) => {
+              req.flash('success_messages', 'restaurant was successfully to update')
+
+              res.redirect('/admin/restaurants')
+
+            })
+        })
+    }
   },
 
   // [Delete]刪除一筆餐廳資料：

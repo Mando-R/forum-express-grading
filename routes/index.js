@@ -4,6 +4,13 @@ const adminController = require("../controllers/adminController.js")
 
 const userController = require("../controllers/userController.js")
 
+// multer 套件(image)：上傳[temp 資料夾] vs. 使用[upload 資料夾]
+// (1) 分開 上傳[temp 資料夾] vs. 使用[upload 資料夾] 邏輯，成功上傳 -> 才使用。
+// (2) 上傳到 temp 過程可能錯誤，所以「上傳失敗」暫存檔留在 temp 資料夾內，需定時清空，但 upload 資料夾內必是對外使用的檔案。
+// (3) 可順便自定義檔名(基礎的 multer 沒有自定義檔名的功能)
+const multer = require("multer")
+const upload = multer({ dest: "temp/" })
+
 // module.exports：匯出　Route 設定
 // 注意：(app, passport)：接收 app 和 passport
 module.exports = (app, passport) => {
@@ -47,9 +54,10 @@ module.exports = (app, passport) => {
   app.get("/admin/restaurants", authenticatedAdmin, adminController.getRestaurants)
 
   // [Create]新增一筆餐廳資料
+  // upload.single("image")：multer 只要碰到 req 內有圖片檔，就自動複製檔案至 temp 資料夾內。
   app.get("/admin/restaurants/create", authenticatedAdmin, adminController.createRestaurant)
 
-  app.post("/admin/restaurants", authenticatedAdmin, adminController.postRestaurant)
+  app.post("/admin/restaurants", authenticatedAdmin, upload.single("image"), adminController.postRestaurant)
 
   // [Read/Detail、Show]瀏覽一筆餐廳資料：動態路由:id -> req.params.id
   app.get("/admin/restaurants/:id", authenticatedAdmin, adminController.getRestaurant)
@@ -58,7 +66,8 @@ module.exports = (app, passport) => {
   app.get("/admin/restaurants/:id/edit", authenticatedAdmin, adminController.editRestaurant)
 
   // [Edit/Update]編輯一筆餐廳資料(2)
-  app.put("/admin/restaurants/:id", authenticatedAdmin, adminController.putRestaurant)
+  // upload.single("image")：multer 只要碰到 req 內有圖片檔，就自動複製檔案至 temp 資料夾內。
+  app.put("/admin/restaurants/:id", authenticatedAdmin, upload.single("image"), adminController.putRestaurant)
 
   // [Delete]刪除一筆餐廳資料
   app.delete("/admin/restaurants/:id", authenticatedAdmin, adminController.deleteRestaurant)
