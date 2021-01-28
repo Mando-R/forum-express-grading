@@ -87,8 +87,19 @@ const adminController = {
 
           })
       })
+  },
 
-  }
+  // [Delete]刪除一筆餐廳資料：
+  deleteRestaurant: (req, res) => {
+    return Restaurant.findByPk(req.params.id)
+      .then(restaurant => {
+        // restaurant.destroy()：刪除
+        restaurant.destroy()
+          .then(restaurant => {
+            res.redirect("/admin/restaurants")
+          })
+      })
+  },
 
 
 

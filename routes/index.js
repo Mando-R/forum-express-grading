@@ -60,6 +60,9 @@ module.exports = (app, passport) => {
   // [Edit/Update]編輯一筆餐廳資料(2)
   app.put("/admin/restaurants/:id", authenticatedAdmin, adminController.putRestaurant)
 
+  // [Delete]刪除一筆餐廳資料
+  app.delete("/admin/restaurants/:id", authenticatedAdmin, adminController.deleteRestaurant)
+
   // 3. Sign-up [User 註冊流程]
   app.get("/signup", userController.signUpPage)
 
