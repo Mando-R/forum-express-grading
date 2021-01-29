@@ -8,8 +8,7 @@ const env = process.env.NODE_ENV || 'development'
 const config = require(__dirname + '/../config/config.json')[env]
 const db = {}
 
-// 1. 資料庫連線
-// 目的：連線資料庫，呼叫 config.json 的設定檔。
+// 1. 資料庫連線：呼叫 config.json 的設定檔。
 
 // 但若 config.json 內有一個 use_env_variable，就會優先根據環境變數決定連線資料庫的參數，而非之前在 config.json 寫的設定。
 
