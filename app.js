@@ -44,8 +44,6 @@ app.use((req, res, next) => {
 app.use("/upload", express.static(__dirname + "/upload"))
 
 
-
-
 // Handlebars
 app.engine("handlebars", handlebars({ defaultLayout: "main.handlebars" }))
 
