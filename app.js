@@ -1,13 +1,20 @@
 const express = require("express")
-const app = express()
-const port = process.env.PORT || 3000
 const handlebars = require("express-handlebars")
 const db = require("./models")
 const bodyParser = require("body-parser")
-const flash = require("connect-flash")
-const session = require("express-session")
-const passport = require("./config/passport.js")
 const methodOverride = require("method-override")
+
+// 若現在環境 非 "production"，則使用 dotenv 資訊。在文件上方加入，現在沒什麼影響，但之後設定變多以後會有順序問題，記得要加在 Passport 之前。
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config()
+}
+const passport = require("./config/passport.js")
+const session = require("express-session")
+const flash = require("connect-flash")
+
+const app = express()
+const port = process.env.PORT || 3000
+
 
 // app.use
 // (1) bodyParser

@@ -15,7 +15,7 @@
     "logging": false
   },
   "production": {
-    "use_env_variable": "DATABASE_URL",
+    "use_env_variable": "postgresql-convex-80565",
     "dialect": "postgres",
     "protocol": "postgres",
     "dialectOptions": {
