@@ -1,13 +1,13 @@
+// 引入 imgur 套件：整合第三方 Imgur API
+const imgur = require("imgur-node-api")
+const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID  // Client ID -> .env(隱藏敏感資訊)
+
 // 引入 Restaurant Model
 const db = require("../models")
 const Restaurant = db.Restaurant
 
 // 引入 multer 套件的 fs 模組
 const fs = require("fs")
-
-// 引入 imgur 套件：整合第三方 Imgur API
-const imgur = require("imgur-node-api")
-const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID  // Client ID -> .env(隱藏敏感資訊)
 
 const adminController = {
   // getRestaurants：
@@ -168,7 +168,7 @@ const adminController = {
     }
     else {
       return Restaurant.findByPk(req.params.id)
-        .then((restaurant) => {
+        .then(restaurant => {
           // restaurant.update：Update 資料
           restaurant.update({
             name: req.body.name,
@@ -178,7 +178,7 @@ const adminController = {
             description: req.body.description,
             image: restaurant.image
           })
-            .then((restaurant) => {
+            .then(restaurant => {
               req.flash('success_messages', 'restaurant was successfully to update')
 
               res.redirect('/admin/restaurants')
