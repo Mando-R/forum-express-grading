@@ -15,6 +15,9 @@ const flash = require("connect-flash")
 const app = express()
 const port = process.env.PORT || 3000
 
+// Handlebars
+app.engine("handlebars", handlebars({ defaultLayout: "main.handlebars" }))
+app.set("view engine", "handlebars")
 
 // app.use
 // (1) bodyParser
@@ -51,10 +54,7 @@ app.use((req, res, next) => {
 app.use("/upload", express.static(__dirname + "/upload"))
 
 
-// Handlebars
-app.engine("handlebars", handlebars({ defaultLayout: "main.handlebars" }))
 
-app.set("view engine", "handlebars")
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}!`)
