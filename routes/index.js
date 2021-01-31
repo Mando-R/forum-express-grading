@@ -1,3 +1,5 @@
+const helpers = require("../_helpers")
+
 const restController = require("../controllers/restController.js")
 
 const adminController = require("../controllers/adminController.js")
@@ -18,7 +20,8 @@ module.exports = (app, passport) => {
   // authenticated：
   const authenticated = (req, res, next) => {
     // (1) 檢查 User 是否登入，未登入則導回 Sign-in 頁。
-    if (req.isAuthenticated()) {
+    // if (req.isAuthenticated()) {
+    if (helpers.ensureAuthenticated(req)) {
       return next()
     }
     res.redirect("/signin")
@@ -28,10 +31,12 @@ module.exports = (app, passport) => {
   // authenticatedAdmin：
   const authenticatedAdmin = (req, res, next) => {
     // (1)驗證 User 登入狀態
-    if (req.isAuthenticated()) {
+    // if (req.isAuthenticated()) {
+    if (helpers.ensureAuthenticated(req)) {
       // (2)檢查 req 內攜帶的 user 實例是否具管理員身份，若無則導回首頁。
       // isAdmin：User Model 新增的身分驗證欄位(Boolean)
-      if (req.user.isAdmin) {
+      // if (req.user.isAdmin) {
+      if (helpers.getUser(req).isAdmin) {
         return next()
       }
       return res.redirect("/")

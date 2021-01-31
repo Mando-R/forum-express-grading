@@ -3,6 +3,7 @@ const handlebars = require("express-handlebars")
 const db = require("./models")
 const bodyParser = require("body-parser")
 const methodOverride = require("method-override")
+const helpers = require("./_helpers")
 
 const app = express()
 const port = process.env.PORT || 3000
@@ -43,7 +44,8 @@ app.use((req, res, next) => {
   res.locals.success_messages = req.flash("success_messages")
   res.locals.error_messages = req.flash("error_messages")
 
-  res.locals.user = req.user
+  // res.locals.user = req.user
+  res.locals.user = helpers.getUser(req)  // 取代 req.user
 
   next()
 })
