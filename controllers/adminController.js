@@ -5,9 +5,11 @@ const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID  // Client ID -> .env(隱藏
 // 引入 Restaurant Model
 const db = require("../models")
 const Restaurant = db.Restaurant
+const User = db.User
 
 // 引入 multer 套件的 fs 模組
 const fs = require("fs")
+const { userInfo } = require("os")
 
 const adminController = {
   // getRestaurants：
@@ -198,10 +200,49 @@ const adminController = {
           })
       })
   },
+  // Authority 設定(1)：set as user/admin
+  getUser: (req, res) => {
+    User.findAll({ raw: true, nest: true })
+      .then(users => {
+        // 理解 isAdmin 狀態切換
+        // console.log(users)
+        // console.log(users[0].isAdmin)
+        // console.log(users[0].isAdmin = !users[0].isAdmin)
+
+        return res.render("admin/users.handlebars", { users: users })
+      })
+  },
+  // // Authority 設定(1)：set as user/admin
+  putUser: (req, res) => {
+    // 1. 注意：User.findByPk(req.params.id)：此處不可加參數{ raw: true }，否則 Model Instance function[.save()] 失效。
+    User.findByPk(req.params.id)
+      .then(user => {
+        //不須先轉成 plain object，因最後皆由 adminController.getUser 轉換。
+        console.log(`user:`, user)
+
+        // 檢驗 isAdmin 切換前
+        console.log(`user.isAdmin-BEFORE: `, user.isAdmin)
+
+        // 2. 注意：isAdmin 切換 True/False
+        user.isAdmin = !user.isAdmin
+
+        // 檢驗 isAdmin 切換後
+        console.log(`user.isAdmin-AFTER: `, user.isAdmin)
+
+        // 3. 官方文件 Model Instance：也可精簡用.save()，自動 update 欄位的 value。
+        user.save({ field: "isAdmin" })
+          // user.save()
+          .then(user => {
+
+            req.flash('success_messages',
+              `user "${user.name}" was updated successfully!`)
+
+            res.redirect('/admin/users')
+          })
+      })
+  }
 }
 
 // 匯出 restController 物件{}：
 // restController 物件會存放在一個同名檔案 restController.js 內，記得在檔案最後一行，使用 module.exports 匯出 restController，之後才能在其他檔案內使用。
 module.exports = adminController
-
-

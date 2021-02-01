@@ -54,9 +54,6 @@ app.use((req, res, next) => {
 // 加上 Route："/upload"，因為是靜態檔案，所以不需像其他 Route 路由一樣寫 Controller 邏輯，直接用 express.static 指定路徑即可。
 app.use("/upload", express.static(__dirname + "/upload"))
 
-
-
-
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}!`)
 })

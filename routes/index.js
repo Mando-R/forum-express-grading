@@ -77,6 +77,11 @@ module.exports = (app, passport) => {
   // [Delete]刪除一筆餐廳資料
   app.delete("/admin/restaurants/:id", authenticatedAdmin, adminController.deleteRestaurant)
 
+  // Authority 設定：set as user/admin
+  app.get("/admin/users", authenticatedAdmin, adminController.getUser)
+
+  app.put("/admin/users/:id/toggleAdmin", authenticatedAdmin, adminController.putUser)
+
   // 3. Sign-up [User 註冊流程]
   app.get("/signup", userController.signUpPage)
 
