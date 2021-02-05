@@ -6,19 +6,31 @@ const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID  // Client ID -> .env(隱藏
 const db = require("../models")
 const Restaurant = db.Restaurant
 const User = db.User
+const Category = db.Category
 
 // 引入 multer 套件的 fs 模組
 const fs = require("fs")
 const { userInfo } = require("os")
 
 const adminController = {
-  // getRestaurants：
+  // [Read]瀏覽全部餐廳資料：
   // (1) 為一個 function，負責[瀏覽餐廳頁面]，render -> restaurants 的 Handlebars。
   // (2) 為Controller(adminController)內的一個 Action。
   getRestaurants: (req, res) => {
     // .findAll({ raw: true })：查找全部、轉成 plain object。
-    return Restaurant.findAll({ raw: true })
+    return Restaurant.findAll({
+      raw: true,
+      nest: true,
+      // 對應 const Category = db.Category
+      // 注意：include: [Model]：
+      // 1. include 同時代入[Model]和 有關聯的 Model Data。
+      // 2. 將 Category 傳給 Restaurant.findAll，render -> Handlebars。
+      include: [Category]
+    })
       .then(restaurants => {
+        // 檢查 include: [Category]
+        // console.log(restaurants)
+
         // adminController.js 和 admin[Folder] 同一層
         return res.render("admin/restaurants", { restaurants: restaurants })
       })
@@ -108,9 +120,15 @@ const adminController = {
   getRestaurant: (req, res) => {
     // req.params.id：從 Route 傳過來的參數
     // {raw: true}：轉換成 JS plain object。
-    return Restaurant.findByPk(req.params.id, { raw: true })
+    return Restaurant.findByPk(req.params.id, {
+      // 注意：不可加 raw: true, 改加 .toJSON()。
+      include: [Category]
+    })
       .then(restaurant => {
-        return res.render("admin/restaurant.handlebars", { restaurant: restaurant })
+        // 檢查 include: [Category]
+        // console.log(restaurant)
+
+        return res.render("admin/restaurant.handlebars", { restaurant: restaurant.toJSON() })
       })
   },
 
