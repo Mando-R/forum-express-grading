@@ -24,7 +24,9 @@ module.exports = {
             description: faker.lorem.text(),
 
             createdAt: new Date(),
-            updatedAt: new Date()
+            updatedAt: new Date(),
+            // 加上這行
+            CategoryId: Math.floor(Math.random() * 6) * 10 + 1
           }
         )
         ), {})
