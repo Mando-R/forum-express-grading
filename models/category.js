@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      // category.Restaurants：撈出屬於 category 這個分類的所有餐廳，注意此時 Restaurants 是複數。
       Category.hasMany(models.Restaurant)
     }
   };

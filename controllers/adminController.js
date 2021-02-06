@@ -38,7 +38,15 @@ const adminController = {
 
   // [Create]新增一筆餐廳資料(1)：render -> create 頁面 [顯示頁面，非功能(POST動作)]
   createRestaurant: (req, res) => {
-    return res.render("admin/create.handlebars")
+    Category.findAll({
+      raw: true,
+      nest: true
+    })
+      .then(categories => {
+        return res.render("admin/create.handlebars", {
+          categories: categories
+        })
+      })
   },
 
   // [Create]新增一筆餐廳資料(2)：create 功能 [POST]
@@ -90,6 +98,8 @@ const adminController = {
 
           // img.fata.link：取得上傳圖片後的 URL。上傳成功後 http://img.data.link/ 會是剛剛上傳後拿到的圖片網址。
           image: file ? img.data.link : null,
+
+          CategoryId: req.body.CategoryId
         })
           .then(restaurant => {
             req.flash('success_messages', 'restaurant was successfully created')
@@ -106,7 +116,8 @@ const adminController = {
         address: req.body.address,
         opening_hours: req.body.opening_hours,
         description: req.body.description,
-        image: null
+        image: null,
+        CategoryId: req.body.CategoryId
       })
         .then(restaurant => {
           req.flash('success_messages', 'restaurant was successfully created')
@@ -134,11 +145,21 @@ const adminController = {
 
   // [Update]編輯一筆餐廳資料(1)：render -> create 頁面
   editRestaurant: (req, res) => {
-    return Restaurant.findByPk(req.params.id, { raw: true })
-      .then(restaurant => {
-        // 注意：render -> admin/create 頁面。
-        // [Update]和[Create]表單類似，所以在[Create]表單做一點修改，之後只需維護一個表單！
-        return res.render("admin/create.handlebars", { restaurant: restaurant })
+
+    Category.findAll({
+      raw: true,
+      nest: true
+    })
+      .then(categories => {
+        return Restaurant.findByPk(req.params.id)
+          .then(restaurant => {
+            // 注意：render -> admin/create 頁面。
+            // [Update]和[Create]表單類似，所以在[Create]表單做一點修改，之後只需維護一個表單！
+            return res.render("admin/create.handlebars", {
+              categories: categories,
+              restaurant: restaurant.toJSON()
+            })
+          })
       })
   },
 
@@ -178,6 +199,7 @@ const adminController = {
               opening_hours: req.body.opening_hours,
               description: req.body.description,
               image: file ? img.data.link : restaurant.image,
+              CategoryId: req.body.CategoryId
             })
               .then(restaurant => {
                 req.flash('success_messages', 'restaurant was successfully to update')
@@ -196,7 +218,8 @@ const adminController = {
             address: req.body.address,
             opening_hours: req.body.opening_hours,
             description: req.body.description,
-            image: restaurant.image
+            image: restaurant.image,
+            CategoryId: req.body.CategoryId
           })
             .then(restaurant => {
               req.flash('success_messages', 'restaurant was successfully to update')

@@ -25,7 +25,8 @@ module.exports = {
 
             createdAt: new Date(),
             updatedAt: new Date(),
-            // 加上這行
+
+            // 對應 Category Seeder
             CategoryId: Math.floor(Math.random() * 6) * 10 + 1
           }
         )

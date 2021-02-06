@@ -12,6 +12,7 @@
     1. "Update"：restaurant 變數存在，所以取得 value 內容
     2. "Create"：restaurant 變數不存在，value = null。 -->
 
+    <!-- Name -->
     <div class="form-group">
       <label for="name">Name</label>
 
@@ -19,12 +20,36 @@
         value="{{restaurant.name}}">
     </div>
 
+    <!-- Category -->
+    <div class="form-group">
+      <label for="categoryId">Category</label>
+
+      <select class="form-control" id="categoryId" name="categoryId">
+
+        {{#each categories}}
+        <!-- 注意：if/else 放在 <option> 內 -->
+        <!-- this.id === restaurant.CategoryId：
+        1. 前面 this.id：表示在 #each categories 裡迭代的分類 id；
+        2. restaurant.CategoryId 的 restaurant 變數：直接從 controller 傳入，代表根據網址 :id 取到的餐廳資料。 -->
+        <option value="{{this.id}}" {{#if this.id===restaurant.CategoryId}} selected {{/if}}>
+
+          {{this.name}}
+
+        </option>
+        {{/each}}
+
+      </select>
+
+    </div>
+
+    <!-- Tel -->
     <div class="form-group">
       <label for="tel">Tel</label>
 
       <input type="text" class="form-control" name="tel" id="tel" placeholder="Enter tel" value="{{restaurant.tel}}">
     </div>
 
+    <!-- Address -->
     <div class="form-group">
       <label for="address">Address</label>
 
@@ -32,6 +57,7 @@
         value="{{restaurant.address}}">
     </div>
 
+    <!-- Opening Hours -->
     <div class="form-group">
       <label for="opening_hours">Opening Hours</label>
 
@@ -39,6 +65,7 @@
         value="{{restaurant.opening_hours}}">
     </div>
 
+    <!-- Description -->
     <div class="form-group">
       <label for="description">Description</label>
 
@@ -46,7 +73,7 @@
       <textarea class="form-control" id="description" name="description" rows="3">{{restaurant.description}}</textarea>
     </div>
 
-    <!-- multer：上傳 image -->
+    <!-- image：multer 套件 上傳 image -->
     <div class="form-group">
       <label for="image">Image</label>
 
