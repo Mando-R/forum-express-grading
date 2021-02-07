@@ -1,0 +1,56 @@
+<h1>餐廳後台</h1>
+<a href='/admin/restaurants'>Restaurants</a> |
+<a href='/admin/categories'>Categories</a>
+<br />
+<br />
+<!-- Create New Category -->
+<div class="d-flex align-items-center p-3 my-3 text-white-50 bg-purple rounded shadow-sm">
+  <form action="/admin/categories" method="POST">
+    <!-- input 欄位 -->
+    <input type="text" placeholder="Create New Category" name="name">
+
+    <!-- Submit -->
+    <button type="submit">Submit</button>
+  </form>
+</div>
+<br />
+<br />
+<table class="table">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">Id</th>
+      <th scope="col">Category Name</th>
+      <th scope="col">#</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {{#each categories}}
+    <tr>
+      <!-- CategoryId -->
+      <th scope="row">{{this.id}}</th>
+
+      <!-- Name -->
+      <td>{{this.name}}</td>
+
+      <td>
+        <!-- Edit -->
+        <button type="button" class="btn btn-link">
+          <a href="/admin/categories/{{this.id}}">
+            Edit
+          </a>
+        </button>
+
+        <!-- Delete -->
+        <form action="/admin/categories/{{this.id}}?_method=DELETE" method="POST" style="display: inline;">
+          <button type="submit" class="btn btn-link">Delete</button>
+        </form>
+
+      </td>
+    </tr>
+    {{/each}}
+  </tbody>
+
+</table>
+<br />
+<br />

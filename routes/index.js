@@ -6,6 +6,8 @@ const adminController = require("../controllers/adminController.js")
 
 const userController = require("../controllers/userController.js")
 
+const categoryController = require("../controllers/categoryController.js")
+
 // multer 套件(image)：上傳[temp 資料夾] vs. 使用[upload 資料夾]
 // (1) 分開 上傳[temp 資料夾] vs. 使用[upload 資料夾] 邏輯，成功上傳 -> 才使用。
 // (2) 上傳到 temp 過程可能錯誤，所以「上傳失敗」暫存檔留在 temp 資料夾內，需定時清空，但 upload 資料夾內必是對外使用的檔案。
@@ -81,6 +83,10 @@ module.exports = (app, passport) => {
   app.get("/admin/users", authenticatedAdmin, adminController.getUser)
 
   app.put("/admin/users/:id/toggleAdmin", authenticatedAdmin, adminController.putUser)
+
+  // Category
+  app.get("/admin/categories", authenticatedAdmin, categoryController.getCategories)
+
 
   // 3. Sign-up [User 註冊流程]
   app.get("/signup", userController.signUpPage)
