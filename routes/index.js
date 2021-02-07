@@ -85,7 +85,11 @@ module.exports = (app, passport) => {
   app.put("/admin/users/:id/toggleAdmin", authenticatedAdmin, adminController.putUser)
 
   // Category
+  // (1)[Read] Category
   app.get("/admin/categories", authenticatedAdmin, categoryController.getCategories)
+
+  // (2)[Create] Category
+  app.post("/admin/categories", authenticatedAdmin, categoryController.postCategory)
 
 
   // 3. Sign-up [User 註冊流程]
