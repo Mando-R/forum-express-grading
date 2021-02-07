@@ -27,11 +27,14 @@
       <select class="form-control" id="categoryId" name="categoryId">
 
         {{#each categories}}
-        <!-- 注意：if/else 放在 <option> 內 -->
-        <!-- this.id === restaurant.CategoryId：
-        1. 前面 this.id：表示在 #each categories 裡迭代的分類 id；
-        2. restaurant.CategoryId 的 restaurant 變數：直接從 controller 傳入，代表根據網址 :id 取到的餐廳資料。 -->
-        <option value="{{this.id}}" {{#if this.id===restaurant.CategoryId}} selected {{/if}}>
+        <!-- 注意：if/else 的 helper，放在 <option> 內 -->
+        <!-- 
+        1. this.id：表示在 #each categories 裡迭代的分類 id；
+        2. ../restaurant.CategoryId：../ 指回到上一層 categories。直接從 controller 傳入，代表根據網址 :id 取到的餐廳資料。 
+        -->
+        <option value="{{this.id}}" {{#ifCond this.id ../restaurant.CategoryId}} selected {{/ifCond}}>
+
+          <!-- >如果忘記加入 ../，由於在 #each categories 的語境下，會以為你在呼叫this.restaurant，會變成去 categories 迭代到的項目裡尋找一個叫做 restaurant 的屬性，結果會找不到東西。 -->
 
           {{this.name}}
 

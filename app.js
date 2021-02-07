@@ -5,6 +5,7 @@ const db = require("./models")
 
 const bodyParser = require("body-parser")
 const methodOverride = require("method-override")
+// helper 函式取代 passport 方法
 const helpers = require("./_helpers")
 
 const app = express()
@@ -18,7 +19,10 @@ const session = require("express-session")
 const flash = require("connect-flash")
 
 // Handlebars
-app.engine("handlebars", handlebars({ defaultLayout: "main.handlebars" }))
+app.engine("handlebars", handlebars({
+  defaultLayout: "main.handlebars",
+  helpers: require("./config/handlebars-helpers.js")
+}))
 app.set("view engine", "handlebars")
 
 // app.use
