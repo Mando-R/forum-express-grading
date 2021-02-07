@@ -96,6 +96,13 @@ module.exports = (app, passport) => {
 
   app.put("/admin/categories/:id", authenticatedAdmin, categoryController.putCategory)
 
+  // (4)[Delete] Category
+  app.delete("/admin/categories/:id", authenticatedAdmin, categoryController.deleteCategory)
+
+
+
+
+
   // 3. Sign-up [User 註冊流程]
   app.get("/signup", userController.signUpPage)
 

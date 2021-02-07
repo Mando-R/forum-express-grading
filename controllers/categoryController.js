@@ -35,11 +35,12 @@ const categoryController = {
     }
     // (2) 若欄位 Name "非"空白。
     else {
+      // Model.create()：新增
       return Category.create({
         name: req.body.name
       })
         .then(category => {
-          req.flash('success_messages', 'New Category was successfully created')
+          req.flash('success_messages', `New Category [ ${category.name} ] was successfully created`)
 
           res.redirect("/admin/categories")
         })
@@ -57,12 +58,33 @@ const categoryController = {
     else {
       return Category.findByPk(req.params.id)
         .then(category => {
+          req.flash('success_messages', `Category [ ${category.name} ] was successfully updated`)
+          // .update()：更新
           category.update(req.body)
+
             .then(category => {
               res.redirect("/admin/categories")
             })
         })
     }
+  },
+
+  // [Delete]刪除 Category
+  deleteCategory: (req, res) => {
+    return Category.findByPk(req.params.id)
+      .then(category => {
+        //req.flash('success_messages', `Category [ ${category.name} ] was successfully deleted`)
+        // .destroy()：刪除
+        category.destroy()
+          .then(category => {
+            // 注意：req.flash 要放在 res.redirect 前面
+            req.flash('success_messages', `Category [ ${category.name} ] was successfully deleted`)
+
+            res.redirect("/admin/categories")
+            // req.flash('success_messages', `Category [ ${category.name} ] was successfully deleted`)
+
+          })
+      })
   }
 }
 
