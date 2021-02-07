@@ -3,15 +3,32 @@
 <a href='/admin/categories'>Categories</a>
 <br />
 <br />
+
 <!-- Create New Category -->
 <div class="d-flex align-items-center p-3 my-3 text-white-50 bg-purple rounded shadow-sm">
-  <form action="/admin/categories" method="POST">
-    <!-- input 欄位 -->
-    <input type="text" placeholder="Create New Category" name="name">
 
-    <!-- Submit -->
+  <!-- 注意：只有這層<form> 做切換 -->
+  {{#if category}}
+  <form action="/admin/categories/{{category.id}}?_method=PUT" method="POST">
+    <!-- input 欄位：value 代入 category.name -->
+    <input type="text" placeholder="Update Category" name="name" value="{{category.name}}">
+
+    <!-- Update -->
+    <button type="submit">Update</button>
+
+    <!-- or Create New： -->
+    <a href="/admin/categories">or Create New</a>
+
+  </form>
+
+  {{else}}
+  <!-- Submit -->
+  <form action="/admin/categories" method="POST">
+    <input type="text" placeholder="Create New Category" name="name">
     <button type="submit">Submit</button>
   </form>
+  {{/if}}
+
 </div>
 <br />
 <br />

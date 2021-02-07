@@ -91,6 +91,10 @@ module.exports = (app, passport) => {
   // (2)[Create] Category
   app.post("/admin/categories", authenticatedAdmin, categoryController.postCategory)
 
+  // (3)[Update] Category
+  app.get("/admin/categories/:id", authenticatedAdmin, categoryController.getCategories)
+
+  app.put("/admin/categories/:id", authenticatedAdmin, categoryController.putCategory)
 
   // 3. Sign-up [User 註冊流程]
   app.get("/signup", userController.signUpPage)
