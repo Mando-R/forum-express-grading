@@ -1,3 +1,28 @@
-<div>
-  restaurants
+<div class="row">
+  {{#each restaurants}}
+  <div class="col-md-4">
+    <div class="card mb-4 shadow-sm">
+      <img class="card-img-top" src="{{this.image}}" alt="Card image cap" width="286px" height="180px">
+      <div class="card-body">
+
+        <p class="card-text">
+          <a href="/restaurants/{{this.id}}">
+            {{this.name}}
+          </a>
+        </p>
+
+        <!-- 對應 restController.getRestaurants：
+        categoryName: restaurant.Category.name -->
+        <span class="badge badge-secondary">{{this.categoryName}}</span>
+
+        <!-- 對應 restController.getRestaurants：
+        description: restaurant.dataValues.description.substring 0, 50，切割出50字元 -->
+        <p class="card-text">{{this.description}}</p>
+
+      </div>
+    </div>
+  </div>
+  {{/each}}
 </div>
+<br />
+<br />
