@@ -50,8 +50,11 @@ module.exports = (app, passport) => {
   app.get("/", authenticated, (req, res) => {
     res.redirect("/restaurants")
   })
-
+  // [Read]瀏覽 全部 餐廳
   app.get("/restaurants", authenticated, restController.getRestaurants)
+
+  // [Read]瀏覽 單一 餐廳
+  app.get("/restaurants/:id", authenticated, restController.getRestaurant)
 
   // 2. 後台：adminController ＋ authenticatedAdmin
   app.get("/admin", authenticatedAdmin, (req, res) => {

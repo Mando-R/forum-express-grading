@@ -11,7 +11,7 @@ const Category = db.Category
 // 2. 為一個 Object{}。
 // 3. 有不同Object屬性：如 getRestaurants。
 const restController = {
-  // getRestaurants：
+  // [Read]瀏覽 全部 餐廳：
   // (1) 為一個 function，負責[瀏覽餐廳頁面]，render -> restaurants 的 Handlebars。
   // (2) 為Controller(restController)內的一個 Action。
   getRestaurants: (req, res) => {
@@ -49,6 +49,19 @@ const restController = {
 
         return res.render("restaurants.handlebars", {
           restaurants: data
+        })
+      })
+  },
+  // [Read]瀏覽 單一 餐廳：
+  getRestaurant: (req, res) => {
+    return Restaurant.findByPk(req.params.id, {
+      include: Category
+    })
+      .then(restaurant => {
+        // console.log(restaurant)
+
+        return res.render("restaurant.handlebars", {
+          restaurant: restaurant.toJSON()
         })
       })
   }
