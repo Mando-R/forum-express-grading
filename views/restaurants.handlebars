@@ -1,3 +1,27 @@
+<ul class="nav nav-pills">
+  <!-- "全部" 按鈕 -->
+  <li class="nav-item">
+    <!-- 「全部」按鈕的情況，categoryId 會是空字串""，注意""中間不能有空格 -->
+    <a class="nav-link {{#ifCond "" categoryId}}active{{/ifCond}}" href="?categoryId=">全部</a>
+  </li>
+
+  <!--  -->
+  <!-- 迭代 categories 變數：1. 取出分類名稱， -->
+  {{#each categories}}
+  <li class="nav-item">
+
+    <!-- 2. 把 id 加到網址<href>，變成 restaurants?categoryId=this.id，之後 controller 可拿到參數 -->
+    <!-- activr 屬性：點擊後反藍底；參考 Bootstrap-Navs的Pills-->
+    <a class="nav-link {{#ifCond this.id ../categoryId}}active{{/ifCond}}" href="?categoryId={{this.id}}">
+      {{this.name}}
+    </a>
+
+  </li>
+  {{/each}}
+</ul>
+
+<br />
+
 <div class="row">
   {{#each restaurants}}
   <div class="col-md-4">

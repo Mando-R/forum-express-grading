@@ -11,13 +11,28 @@ const Category = db.Category
 // 2. 為一個 Object{}。
 // 3. 有不同Object屬性：如 getRestaurants。
 const restController = {
-  // [Read]瀏覽 全部 餐廳：
+  // [Read]瀏覽 全部 餐廳
   // (1) 為一個 function，負責[瀏覽餐廳頁面]，render -> restaurants 的 Handlebars。
   // (2) 為Controller(restController)內的一個 Action。
   getRestaurants: (req, res) => {
+    // whereQuery = {}：建立傳入 findAll 的參數，包裝成物件{}。
+    const whereQuery = {}
+
+    // 放入 whereQuery = {} 內的 function
+    let categoryId = ""
+    // 對照 restaurants.handlebars 的 href="?categoryId={{this.id}}：若 request 內含 categoryId
+    if (req.query.categoryId) {
+      // 將 req.query.categoryId 從 String 轉成 Nunber，才能傳入 Sequelize 的 findAll()的 where 參數。
+      categoryId = Number(req.query.categoryId)
+      // 將 categoryId 存入 whereQuery 物件{}。
+      whereQuery.CategoryId = categoryId
+    }
+
     Restaurant.findAll({
       // include：一併拿出關聯的 Category model。
-      include: Category
+      include: Category,
+      // where：傳入 where 篩選結果，必須為物件{}。
+      where: whereQuery
     })
       .then(restaurants => {
         // 外層：restaurant(Array[])、中層：dataValues(Object{})、內層：id 等 Data。
@@ -45,14 +60,22 @@ const restController = {
           categoryName: restaurant.Category.name
         }))
         // 注意：檢查 categoryName
-        console.log(data[0])
+        // console.log(data[0])
 
-        return res.render("restaurants.handlebars", {
-          restaurants: data
+        Category.findAll({
+          raw: true,
+          nest: true
         })
+          .then(categories => {
+            return res.render("restaurants.handlebars", {
+              restaurants: data,
+              categories: categories,
+              categoryId: categoryId
+            })
+          })
       })
   },
-  // [Read]瀏覽 單一 餐廳：
+  // [Read]瀏覽 單一 餐廳
   getRestaurant: (req, res) => {
     return Restaurant.findByPk(req.params.id, {
       include: Category
@@ -64,7 +87,12 @@ const restController = {
           restaurant: restaurant.toJSON()
         })
       })
-  }
+  },
+
+  // [Read]依分類篩選餐廳總表
+
+
+
 }
 
 // 匯出 restController 物件{}：
