@@ -2,17 +2,20 @@
   <!-- "全部" 按鈕 -->
   <li class="nav-item">
     <!-- 「全部」按鈕的情況，categoryId 會是空字串""，注意""中間不能有空格 -->
-    <a class="nav-link {{#ifCond "" categoryId}}active{{/ifCond}}" href="?categoryId=">全部</a>
+    <a class="nav-link {{#ifCond "" categoryId}}active{{/ifCond}}" href="/restaurants?categoryId=">全部</a>
   </li>
 
-  <!--  -->
-  <!-- 迭代 categories 變數：1. 取出分類名稱， -->
+  <!-- 迭代 categories 變數 -->
   {{#each categories}}
   <li class="nav-item">
 
-    <!-- 2. 把 id 加到網址<href>，變成 restaurants?categoryId=this.id，之後 controller 可拿到參數 -->
-    <!-- activr 屬性：點擊後反藍底；參考 Bootstrap-Navs的Pills-->
-    <a class="nav-link {{#ifCond this.id ../categoryId}}active{{/ifCond}}" href="?categoryId={{this.id}}">
+    <!-- 注意：Route：
+    1. href="?categoryId='"this.id"'id
+    2. -> 導向 前台 Index：app.get "/restaurants"..."
+    3. -> restController.getRestaurants：
+          Category.findAll"res.render：data(已篩選)、categories＆categoryId 皆已篩選和處理 " -->
+    <!-- 代入 active 屬性：點擊 反藍底；參考 Bootstrap-Navs的Pills-->
+    <a class="nav-link {{#ifCond this.id ../categoryId}}active{{/ifCond}}" href="/restaurants?categoryId={{this.id}}">
       {{this.name}}
     </a>
 
@@ -51,3 +54,69 @@
 </div>
 <br />
 <br />
+
+<!-- Pagination -->
+<nav aria-label="Page navigation example">
+  <ul class="pagination">
+
+    <!-- 1. prevPage -->
+    <li class="page-item">
+      <!--注意 Route 主結構相同：
+      1. href="/restaurants?page={{nextPage}}&categoryId={{categoryId}}"
+      2. -> 導向 前台 Index：app.get "/restaurants"..." 
+      3. -> 導向 Controller：restController.getRestaurants -->
+      <a class="page-link" href="/restaurants?page={{prevPage}}&categoryId={{categoryId}}" aria-label="Previous">
+
+        <!-- HTML entity 字符實體：&laquo 顯示圖案「<<」 -->
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+
+    <!-- 3. #each：render totalPage 所有分頁數字按鈕 -->
+    <!-- 參考 Bootstrap Pagination，只把原分頁數字修改成 #each，記得用 ../ 找到對應階層 -->
+    <!-- restController.getRestaurants："limit: amountPerPage"連動關係
+    1. const amountPerPage = 10
+    2. offset = "req.query.page - 1" * amountPerPage
+    3. Restaurant.findAndCountAll"參數 limit: amountPerPage"
+    4. const totalPage = Array.from'"length:"maxPages"'.map'"item, index" => index + 1"'-->
+    {{#each totalPage}}
+
+    <!-- this：指向 each of totalPage Array -->
+    <!-- restController.getRestaurants：
+      1. const thePage = Number"req.query.page" || 1
+      2. res.render"thePage: thePage" -->
+    {{#ifCond this ../thePage}}
+    <!-- 代入 active 屬性：點擊會 反藍底 -->
+    <li class="page-item active">
+      <a class="page-link" href="#">{{this}}</a>
+    </li>
+
+    <!-- 注意：即使 this ≠ ../thePage，只是無 "active反藍底"，仍照常跑完 each of totalPage -->
+    {{else}}
+    <li class="page-item">
+      <!--注意 Route 主結構相同：
+      1. href="/restaurants?page={{nextPage}}&categoryId={{categoryId}}"
+      2. -> 導向 前台 Index：app.get "/restaurants"..." 
+      3. -> 導向 Controller：restController.getRestaurants -->
+
+      <!-- 注意：../categoryId：脫離本層totalPage"this"，往上層 -->
+      <a class="page-link" href="/restaurants?page={{this}}&categoryId={{../categoryId}}">{{this}}</a>
+    </li>
+    {{/ifCond}}
+
+    {{/each}}
+
+    <!-- 2. nextPage -->
+    <li class="page-item">
+      <!--注意 Route 主結構相同：
+      1. href="/restaurants?page={{nextPage}}&categoryId={{categoryId}}"
+      2. -> 導向 前台 Index：app.get "/restaurants"..." 
+      3. -> 導向 Controller：restController.getRestaurants -->
+      <a class="page-link" href="/restaurants?page={{nextPage}}&categoryId={{categoryId}}" aria-label="Next">
+
+        <!-- HTML entity 字符實體：&raquo 顯示圖案「>>」 -->
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+  </ul>
+</nav>
