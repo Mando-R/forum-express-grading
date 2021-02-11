@@ -61,6 +61,9 @@ module.exports = (app, passport) => {
   // [Create/POST]新增評論
   app.post("/comments", authenticated, commentController.postComment)
 
+  // [Delete]刪除一筆評論(Comment)
+  app.delete("/comments/:id", authenticatedAdmin, commentController.deleteComment)
+
   // 2. 後台：adminController ＋ authenticatedAdmin
   app.get("/admin", authenticatedAdmin, (req, res) => {
     res.redirect("/admin/restaurants")
@@ -86,6 +89,8 @@ module.exports = (app, passport) => {
 
   // [Delete]刪除一筆餐廳資料
   app.delete("/admin/restaurants/:id", authenticatedAdmin, adminController.deleteRestaurant)
+
+
 
   // Authority 設定：set as user/admin
   app.get("/admin/users", authenticatedAdmin, adminController.getUser)

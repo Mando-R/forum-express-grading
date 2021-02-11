@@ -2,7 +2,7 @@ const db = require("../models")
 const Comment = db.Comment
 
 const commentController = {
-  // [Create/POST]新增評論
+  // [Create/POST] 新增 評論
   postComment: (req, res) => {
     // console.log("req.params", req.params)
     // console.log("req.body", req.body)
@@ -20,7 +20,19 @@ const commentController = {
       UserId: req.user.id
     })
       .then(comment => {
-        res.redirect("/restaurants/${req.body.restaurantId}")
+        res.redirect(`/restaurants/${req.body.restaurantId}`)
+      })
+  },
+
+  // [Delete] 刪除 評論
+  deleteComment: (req, res) => {
+    return Comment.findByPk(req.params.id)
+      .then(comment => {
+        comment.destroy()
+          .then(comment => {
+            // 注意：id 為 comment.RestaurantId
+            res.redirect(`/restaurants/${comment.RestaurantId}`)
+          })
       })
   }
 }

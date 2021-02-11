@@ -129,21 +129,23 @@ const restController = {
       // 注意：include 項目變多時，改用 Array[]。
       // Restaurant inclede(包入) Category Model 和 Comment Model，其中 Comment Model 再 inclede(包入) User Model。
       include: [
+        // Category,
         { model: Category },
+
         // 2. Comment Table
         // 3. User Table
         { model: Comment, include: [User] }
       ]
     })
       .then(restaurant => {
-        // console.log(`-------------------------------`)
-        // console.log(`restaurant`, restaurant)
-        // console.log(`-------------------------------`)
-        // console.log(`restaurant.Comments[0]`, restaurant.Comments[0])
-        // console.log(`-------------------------------`)
-        // console.log(restaurant.Comments[0].dataValues)
-        // console.log(`-------------------------------`)
-        // console.log(restaurant.Comments[0].dataValues.UserId)
+        console.log(`-------------------------------`)
+        console.log(`restaurant`, restaurant)
+        console.log(`-------------------------------`)
+        console.log(`restaurant.Comments[0]`, restaurant.Comments[0])
+        console.log(`-------------------------------`)
+        console.log(restaurant.Comments[0].dataValues)
+        console.log(`-------------------------------`)
+        console.log(restaurant.Comments[0].dataValues.UserId)
 
         return res.render("restaurant.handlebars", {
           restaurant: restaurant.toJSON()

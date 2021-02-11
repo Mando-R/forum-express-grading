@@ -32,6 +32,21 @@
 {{#each restaurant.Comments}}
 <blockquote class="blockquote mb-0">
 
+  <!-- Delete 按鈕：#if 限制 admin 權限 -->
+  <!-- this：指向 #each restaurant.Comments -->
+  <!-- 注意：../user.isAdmin：
+  1. restController.getRestaurant render 的restaurant 內部有 user.isAdmin 
+  2. 因有 this 指向 #each restaurant.Comments，所以要用"../"回到上一層，才可接收 restaurant Data -->
+  {{#if ../user.isAdmin}}
+  <form action="/comments/{{this.id}}?_method=DELETE" method="POST" style="float: right;">
+
+    <button type="submit" class="btn btn-danger">
+      Delete
+    </button>
+
+  </form>
+  {{/if}}
+
   <!-- User Table：1. id、2. name -->
   <h4>
     <a href="/users/{{this.User.id}}">
@@ -43,10 +58,12 @@
   <p>{{this.text}}</p>
 
   <!-- moment 判斷式："絕對時間"->"相對時間" -->
-  <footer class="blockquote-footer">{{moment this.createdAt}}</footer>
+  <footer class="blockquote-footer">
+    {{moment this.createdAt}}
+  </footer>
 
 </blockquote>
-<hr />
+<br /><br />
 {{/each}}
 
 <!-- action：Route -->
@@ -64,7 +81,9 @@
   <input type="hidden" name="restaurantId" value="{{restaurant.id}}" />
 
   <!-- POST -->
-  <button type="submit" class="btn btn-primary">Submit</button>
+  <button type="submit" class="btn btn-primary">
+    Submit
+  </button>
 
 </form>
 
