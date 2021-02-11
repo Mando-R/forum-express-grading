@@ -24,5 +24,25 @@
 </div>
 <br />
 <br />
-<!-- 注意：Back -->
+<!-- Comment -->
+<!-- action：Route -->
+<form action="/comments" method="POST">
+
+  <div class="form-group">
+    <label for="text">留下評論：</label>
+
+    <!-- Text 欄位 -->
+    <textarea class="form-control" id="text" name="text" rows="3"></textarea>
+  </div>
+
+  <!-- name -> req.body"Controller" -->
+  <!-- 注意：The hidden field is not shown to the user, but the data "restaurant.id" is sent when the form is submitted. -->
+  <input type="hidden" name="restaurantId" value="{{restaurant.id}}" />
+
+  <!-- POST -->
+  <button type="submit" class="btn btn-primary">Submit</button>
+
+</form>
+
+<!-- 注意：Back 按鈕 -->
 <a href="javascript:history.back()">回上一頁</a>

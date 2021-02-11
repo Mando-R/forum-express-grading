@@ -8,6 +8,8 @@ const userController = require("../controllers/userController.js")
 
 const categoryController = require("../controllers/categoryController.js")
 
+const commentController = require("../controllers/commentController.js")
+
 // multer 套件(image)：上傳[temp 資料夾] vs. 使用[upload 資料夾]
 // (1) 分開 上傳[temp 資料夾] vs. 使用[upload 資料夾] 邏輯，成功上傳 -> 才使用。
 // (2) 上傳到 temp 過程可能錯誤，所以「上傳失敗」暫存檔留在 temp 資料夾內，需定時清空，但 upload 資料夾內必是對外使用的檔案。
@@ -55,6 +57,9 @@ module.exports = (app, passport) => {
 
   // [Read]瀏覽 單一 餐廳
   app.get("/restaurants/:id", authenticated, restController.getRestaurant)
+
+  // [Create/POST]新增評論
+  app.post("/comments", authenticated, commentController.postComment)
 
   // 2. 後台：adminController ＋ authenticatedAdmin
   app.get("/admin", authenticatedAdmin, (req, res) => {
