@@ -11,8 +11,13 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+
+      // Model Restaurant[M] -> [1]Model Category
       // restaurant.Category：撈出 restaurant 這間餐廳所屬的分類，注意此時 Category 是單數。
       Restaurant.belongsTo(models.Category)
+
+      // Model Restaurant[1] -> [M]Model Comment
+      Restaurant.hasMany(models.Comment)
     }
   };
   Restaurant.init({

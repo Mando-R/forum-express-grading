@@ -3,7 +3,7 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class User extends Model {
+  class Comment extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -11,23 +11,20 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      // Model Comment[M] -> [1] Model Restaurant
+      Comment.belongsTo(models.Restaurant)
 
-      // Model User[1] -> [1]Model User
-      User.hasMany(models.Comment)
+      // Model Comment[M] -> [1] Model User
+      Comment.belongsTo(models.User)
     }
   };
-
-  // User.init：定義 Data 欄位屬性
-  User.init({
-    name: DataTypes.STRING,
-    email: DataTypes.STRING,
-    password: DataTypes.STRING,
-    isAdmin: DataTypes.BOOLEAN
+  Comment.init({
+    text: DataTypes.STRING,
+    UserId: DataTypes.INTEGER,
+    RestaurantId: DataTypes.INTEGER
   }, {
     sequelize,
-    modelName: 'User',
+    modelName: 'Comment',
   });
-
-  // 回傳、匯出 Model
-  return User;
+  return Comment;
 };
