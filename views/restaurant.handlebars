@@ -24,7 +24,31 @@
 </div>
 <br />
 <br />
+
 <!-- Comment -->
+<br /><br />
+<h3>所有評論：</h3>
+
+{{#each restaurant.Comments}}
+<blockquote class="blockquote mb-0">
+
+  <!-- User Table：1. id、2. name -->
+  <h4>
+    <a href="/users/{{this.User.id}}">
+      {{this.User.name}}
+    </a>
+  </h4>
+
+  <!-- Comment Table：1. text、2. createdAt -->
+  <p>{{this.text}}</p>
+
+  <!-- moment 判斷式："絕對時間"->"相對時間" -->
+  <footer class="blockquote-footer">{{moment this.createdAt}}</footer>
+
+</blockquote>
+<hr />
+{{/each}}
+
 <!-- action：Route -->
 <form action="/comments" method="POST">
 

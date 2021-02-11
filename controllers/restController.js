@@ -2,6 +2,8 @@
 const db = require("../models")
 const Restaurant = db.Restaurant
 const Category = db.Category
+const Comment = db.Comment
+const User = db.User
 
 // Pagination：避免「magic number」(未命名數字)
 // Pagination：amountPerPage 限制每頁顯示筆數
@@ -115,11 +117,33 @@ const restController = {
   },
   // [Read]瀏覽 單一 餐廳
   getRestaurant: (req, res) => {
+    // Eager loading(預先加載；對照 WorkBench)：
+    // Eager loading＝Main Model <- 注意：JOINS(FK) -> Associated Model
+    // The act of querying data of several models at once(one "Main" model and one or more "Associated" models). 
+    // 注意：At the SQL level, this is a query with one or more "JOINS".
+
+    // Main Model：1.Restaurant Table(FK:CategoryId)
+    // Associated Model：2.Comment Table(FK:RestaurantsId、FK:UserId)、3.User Table
+
     return Restaurant.findByPk(req.params.id, {
-      include: Category
+      // 注意：include 項目變多時，改用 Array[]。
+      // Restaurant inclede(包入) Category Model 和 Comment Model，其中 Comment Model 再 inclede(包入) User Model。
+      include: [
+        { model: Category },
+        // 2. Comment Table
+        // 3. User Table
+        { model: Comment, include: [User] }
+      ]
     })
       .then(restaurant => {
-        // console.log(restaurant)
+        // console.log(`-------------------------------`)
+        // console.log(`restaurant`, restaurant)
+        // console.log(`-------------------------------`)
+        // console.log(`restaurant.Comments[0]`, restaurant.Comments[0])
+        // console.log(`-------------------------------`)
+        // console.log(restaurant.Comments[0].dataValues)
+        // console.log(`-------------------------------`)
+        // console.log(restaurant.Comments[0].dataValues.UserId)
 
         return res.render("restaurant.handlebars", {
           restaurant: restaurant.toJSON()
