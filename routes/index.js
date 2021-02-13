@@ -55,14 +55,20 @@ module.exports = (app, passport) => {
   // [Read]瀏覽 全部 餐廳
   app.get("/restaurants", authenticated, restController.getRestaurants)
 
+  // Ordering(Feeds)：注意排序在 "/restaurants/:id" 前面。
+  // 注意："/restaurants/feeds" 也符合動態路由 "/restaurants/:id" 結構，被視為「:id 是 feeds」而導向[Read]單一餐廳頁面。
+  app.get("/restaurants/feeds", authenticated, restController.getFeeds)
+
   // [Read]瀏覽 單一 餐廳
   app.get("/restaurants/:id", authenticated, restController.getRestaurant)
 
   // [Create/POST]新增評論
   app.post("/comments", authenticated, commentController.postComment)
 
-  // [Delete]刪除一筆評論(Comment)
+  // [Delete]刪除一筆評論(Comment)：限制 Admin 權限
   app.delete("/comments/:id", authenticatedAdmin, commentController.deleteComment)
+
+
 
   // 2. 後台：adminController ＋ authenticatedAdmin
   app.get("/admin", authenticatedAdmin, (req, res) => {

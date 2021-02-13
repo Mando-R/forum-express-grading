@@ -115,6 +115,7 @@ const restController = {
           })
       })
   },
+
   // [Read]瀏覽 單一 餐廳
   getRestaurant: (req, res) => {
     // Eager loading(預先加載；對照 WorkBench)：
@@ -134,24 +135,117 @@ const restController = {
 
         // 2. Comment Table
         // 3. User Table
-        { model: Comment, include: [User] }
+        { model: Comment, include: [{ model: User }] }
       ]
     })
       .then(restaurant => {
-        console.log(`-------------------------------`)
-        console.log(`restaurant`, restaurant)
-        console.log(`-------------------------------`)
-        console.log(`restaurant.Comments[0]`, restaurant.Comments[0])
-        console.log(`-------------------------------`)
-        console.log(restaurant.Comments[0].dataValues)
-        console.log(`-------------------------------`)
-        console.log(restaurant.Comments[0].dataValues.UserId)
+        // console.log(`-------------------------------`)
+        // console.log(`restaurant`, restaurant)
+        // console.log(`-------------------------------`)
+        // console.log(`restaurant.Comments[0]`, restaurant.Comments[0])
+        // console.log(`-------------------------------`)
+        // console.log(restaurant.Comments[0].dataValues)
+        // console.log(`-------------------------------`)
+        // console.log(restaurant.Comments[0].dataValues.UserId)
 
         return res.render("restaurant.handlebars", {
           restaurant: restaurant.toJSON()
         })
       })
   },
+
+  // Odering：2. 迭代：getFeeds 改寫 Promise.all
+  // "1. 傳統.then()寫法" 流程中先呼叫 Restaurant.findAll，等 Restaurant.findAll 執行結束後，才在後續.then()流程呼叫 Comment.findAll。
+
+  // 然而，此案例中 Restaurant 和 Comment 撈資料順序，並無依賴關係，只是受到.then()語法限制，被迫產生一個「順序」。
+
+  // 如此造成，「取 restaurant 資料」動作block(阻塞)「取 comment 資料」，使後者必須等待。
+
+  // 假設查表動作一律 2 秒，整個過程就需 4 秒。若能讓兩個動作同時發生，就可使操作時間維持 2 秒。（此處秒數是舉例說明，不代表真實情況）
+  getFeeds: (req, res) => {
+    // Promise.all([Model 1、Model 2])：2個Model動作，非同步(同時)執行。
+    return Promise.all([
+      // 1. 取得 restaurants
+      Restaurant.findAll({
+        // // Plain Object
+        // raw: true,
+        // nest: true,
+        // Odering
+        limit: 10,
+        order: [["createdAt", "DESC"]],
+        // include Model
+        include: [{ model: Category }],
+        // Plain Object
+        raw: true,
+        nest: true,
+      }),
+      // 2. 取得 comments
+      Comment.findAll({
+        // Plain Object
+        raw: true,
+        nest: true,
+        // Odering
+        limit: 10,
+        order: [["createdAt", "DESC"]],
+        // include Model：注意 個別 Model，有個別物件{}。
+        include: [
+          { model: User },
+          { model: Restaurant }
+        ]
+      })
+    ])
+      .then(([restaurants, comments]) => {
+        // console.log("restaurants[0]", restaurants[0])
+        // console.log("comments[0]", comments[0])
+        // console.log("comments", comments)
+
+        return res.render("feeds.handlebars", {
+          restaurants: restaurants,
+          comments: comments
+        })
+      })
+  }
+  // Odering：1. 傳統.then()寫法
+  // getFeeds: (req, res) => {
+  //   // Restaurant.findAll：前10筆
+  //   return Restaurant.findAll({
+  //     // Plain Object
+  //     raw: true,
+  //     nest: true,
+  //     // Odering
+  //     limit: 10,
+  //     order: [["createdAt", "DESC"]],
+  //     // include Model
+  //     include: [{ model: Category }]
+  //   })
+  //     .then(restaurants => {
+  //       console.log("restaurants[0]", restaurants[0])
+
+  //       // Comment.findAll：前10筆
+  //       Comment.findAll({
+  //         // Plain Object
+  //         raw: true,
+  //         nest: true,
+  //         // Odering
+  //         limit: 10,
+  //         order: [["createdAt", "DESC"]],
+  //         // include Model
+  //         // include: [{ model: User}, { model: Restaurant }]
+  //         include: [{ model: Restaurant }]
+  //       })
+  //         .then(comments => {
+  //           console.log("comments[0]", comments[0])
+  //           console.log("comments", comments)
+
+  //           return res.render("feeds", {
+  //             // 此 restaurants 為 Restaurant.findAll 結果
+  //             restaurants: restaurants,
+  //             // 此 comments 為 Comment.findAll 結果，包含關聯的 User 和 Restaurant。
+  //             comments: comments
+  //           })
+  //         })
+  //     })
+  // },
 }
 
 // 匯出 restController 物件{}：
