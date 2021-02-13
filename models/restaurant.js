@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
 
       // 注意：Model Restaurant[M] -> [M]Model User
       // Model.belongsToMany：多對多
-      Restaurant.belongsToMany(model.User, {
+      Restaurant.belongsToMany(models.User, {
         // 1. through(查詢路徑)："JOIN TABLE(FK)" -> "Original Model(Data)" 
         // (1)先鎖定 Favorite Model(JOIN Table)的 RestaurantId(FK)
         // (2)查詢對應 UserId(FK)。

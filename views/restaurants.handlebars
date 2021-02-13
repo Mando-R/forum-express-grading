@@ -63,6 +63,23 @@
         description: restaurant.dataValues.description.substring 0, 50 -> 切割出 50 字元 -->
         <p class="card-text">{{this.description}}</p>
 
+        <!-- 移除 最愛 -->
+        <!-- this.id = restaurantId -->
+        <form action="/favorite/{{this.id}}?_method=DELETE" method="POST">
+          <button type="submit" class="btn btn-danger">
+            移除最愛
+          </button>
+        </form>
+
+        <!-- 加到 最愛 -->
+        <!-- this.id = restaurantId -->
+        <form action="/favorite/{{this.id}}" method="POST">
+          <button type="submit" class="btn btn-primary">
+            加到最愛
+          </button>
+        </form>
+
+
       </div>
     </div>
   </div>

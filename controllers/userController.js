@@ -1,9 +1,12 @@
 // [signup.handlebars] POST -> [userController.js]
-
 const bcrypt = require("bcryptjs")
 
 const db = require("../models")
+const favorite = require("../models/favorite")
 const User = db.User
+const Restaurant = db.Restaurant
+const Comment = db.Comment
+const Favorite = db.Favorite
 
 //注意：render 檔案、redirect 路由
 const userController = {
@@ -60,8 +63,35 @@ const userController = {
     req.flash("success_messages", `登出成功!`)
     req.logout()
     res.redirect("/signin")
+  },
+
+  // 加入最愛 功能
+  addFavorite: (req, res) => {
+    return Favorite.create({
+      UserId: req.user.id,
+      RestaurantId: req.params.restaurantId
+    })
+      .then(restaurant => {
+        return res.redirect("back")
+      })
+  },
+  // 移除最愛 功能
+  removeFavorite: (req, res) => {
+    return Favorite.findOne({
+      where: {
+        UserId: req.user.id,
+        RestaurantId: req.params.restaurantId
+      }
+    })
+      .then(favorite => {
+        favorite.destroy()
+          .then(restaurant => {
+            return res.redirect("back")
+          })
+      })
   }
 }
+
 
 module.exports = userController
 

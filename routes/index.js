@@ -68,6 +68,11 @@ module.exports = (app, passport) => {
   // [Delete]刪除一筆評論(Comment)：限制 Admin 權限
   app.delete("/comments/:id", authenticatedAdmin, commentController.deleteComment)
 
+  // 加到 最愛
+  app.post("/favorite/:restaurantId", authenticated, userController.addFavorite)
+  // 移除 最愛
+  app.delete("/favorite/:restaurantId", authenticated, userController.removeFavorite)
+
 
 
   // 2. 後台：adminController ＋ authenticatedAdmin
