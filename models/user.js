@@ -14,6 +14,23 @@ module.exports = (sequelize, DataTypes) => {
 
       // Model User[1] -> [1]Model User
       User.hasMany(models.Comment)
+
+      // 注意：Model User[M] -> [M]Model Restaurant
+      // Model.belongsToMany：多對多
+      User.belongsToMany(models.Restaurant, {
+        // 1. through(查詢路徑)："JOIN TABLE(FK)" -> "Original Model(Data)" 
+        // (1)先鎖定 Favorite Model(JOIN Table)的 UserId(FK)
+        // (2)查詢對應 RestaurantId(FK)。
+        // (3)RestaurantId(FK) -> Restaurant Model(Table) 的 Restaurant Data。
+        through: models.Favorite,
+        foreighKey: "UserId",
+
+        // 2. as(命名 路徑&方法)：命名此多對多關係＆查詢路徑。
+        // 路徑&方法：user.FavoritedRestaurants
+        // User Model -> Favorite Model(JOIN Table) -> Restaurant Model(物件{})
+        // 即找出 User 收藏的 Restaurant。
+        as: "FavoritedRestaurants"
+      })
     }
   };
 
