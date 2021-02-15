@@ -1,8 +1,11 @@
+// 注意：req.user 取得 Passport 套件 包裝後的資料。
+
 const passport = require("passport")
 const LocalStrategy = require("passport-local")
 const bcrypt = require("bcryptjs")
 const db = require("../models")
 const User = db.User
+const Restaurant = db.Restaurant
 
 passport.use(new LocalStrategy(
   // 設定客製化選項：Customize user field
@@ -45,7 +48,13 @@ passport.serializeUser((user, cb) => {
 
 // Deserialize user：透過 user id，取出整個 user 物件實例。
 passport.deserializeUser((id, cb) => {
-  User.findByPk(id)
+  // 注意：從 User Model(Database) 取出 user Data。
+  User.findByPk(id, {
+    include: [
+      // as：標明引入的資料關係，之後使用 req.user，一併取得收藏restaurant 的資料！
+      { model: Restaurant, as: "FavoritedRestaurants" }
+    ]
+  })
     .then(user => {
       user = user.toJSON()
       return cb(null, user)

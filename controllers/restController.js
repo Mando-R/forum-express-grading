@@ -41,7 +41,8 @@ const restController = {
 
     Restaurant.findAndCountAll({
       // 條件1. include：一併拿出關聯的 Category model。
-      include: Category,
+      include: [{ model: Category }],
+      // include: Category,
       // 條件2. where：傳入 where 篩選結果，必須為物件{}。
       where: whereQuery,
       // 條件3. Pagination
@@ -69,6 +70,7 @@ const restController = {
         const nextPage = thePage + 1 > maxPages ? maxPages : thePage + 1
 
         // 外層：restaurant(Array[])、中層：dataValues(Object{})、內層：id 等 Data。
+
         // (1) ...：spread operator(展開運算子)，「展開」資料，用於String、Array[]、Object{}。
         // (2) Sequelize 回傳 Model Instance(Object{}結構)時，外層用 dataValues 屬性包裝。
         // console.log(`------------------------`)
@@ -76,7 +78,7 @@ const restController = {
         // console.log(`------------------------`)
         // console.log("results.rows", results.rows)
         // console.log(`------------------------`)
-
+        // console.log("results.row", results.rows)
         // 注意：Sequelize API reference－Model.findAndCountAll：return results 包含{1.count：篩選出的數量、2. rows(Array)：篩選後的 Data}
         // 1. .findAndCountAll{參數} 已篩選 results(Array)。
         // 2. rows：rows(Array)層，包裝篩選後的所有 Data。
@@ -85,17 +87,32 @@ const restController = {
           // (1) ...：spread operator 展開至中層 restaurant.dataValues。
           ...restaurant.dataValues,
 
-          // (2) 展開中層 restaurant.dataValues 後，取得 restaurant.dataValues.description 並 重新代入複寫。
+          // (2) 展開中層 restaurant.dataValues 後，取得 restaurant.dataValues.description 並 重新代入description複寫。
           description: restaurant.dataValues.description.substring(0, 50), // 文字截斷為 50 字元長度
 
           // (3) render -> Handlebars：
           // 注意 categoryName 設定，由於新版 Handlebars 限制直接把特殊物件傳給前端樣板，現需在後端 controller 裡整理好所有要用到的資料。
 
-          // 因此改成直新增給定 categoryName 屬性，把類別名稱放進來：categoryName: r.Category.name
-          categoryName: restaurant.dataValues.Category.name
+          // 因此改成直新增命名 categoryName 屬性，把類別名稱放進來：categoryName: r.Category.name
+          categoryName: restaurant.dataValues.Category.name,
+
+          // 解讀(isFavorited = TRUE/FALSE)：
+          // Passport套件的req.user(註1)，其內部有一陣列[]FavoritedRestaurants，該陣列[]包含多筆餐廳資料物件{}(我命名為單數FavoritedRestaurant)，若該陣列[]內每一筆物件FavoritedRestaurant的id，包含(includes() 註2)原本Database內Restaurant Table的id，則 return TRUE，反之為False。
+
+          // 註1：已先在passport.js設定include:{ model: Restaurant, as: "FavoritedRestaurants" }，表示透過User.findByPk(id...)，以UserId查找User資料同時，該User資料內層也包含(include)和UserId相關聯的Restaurant資料。
+
+          // 註2：includes()：The includes() method determines whether an array includes a certain value among its entries, returning TRUE or FALSE as appropriate.
+
+          // 註3：我將 isFavorited: req.user.FavoritedRestaurants.map(d => d.id).includes(r.id) 改寫成 isFavorited: req.user.FavoritedRestaurants.map(FavoritedRestaurant => FavoritedRestaurant.id).includes(restaurant.dataValues.id)
+
+          isFavorited: req.user.FavoritedRestaurants.map(favoritedRestaurant => favoritedRestaurant.id).includes(restaurant.dataValues.id)
         }))
-        // 注意：檢查 categoryName
-        // console.log(data[0])
+        // console.log("req.user", req.user)
+        // console.log("------------------")
+        // console.log("req.user[0]", req.user[0])
+        // console.log("------------------")
+
+        // console.log("data[0]", data[0])
 
         Category.findAll({
           raw: true,
@@ -135,7 +152,10 @@ const restController = {
 
         // 2. Comment Table
         // 3. User Table
-        { model: Comment, include: [{ model: User }] }
+        { model: Comment, include: [{ model: User }] },
+
+        // isFavorited
+        { model: User, as: "FavoritedUsers" }
       ]
     })
       .then(restaurant => {
@@ -148,8 +168,19 @@ const restController = {
         // console.log(`-------------------------------`)
         // console.log(restaurant.Comments[0].dataValues.UserId)
 
+        const isFavorited = restaurant.FavoritedUsers.map(favoritedRestaurant => favoritedRestaurant.id).includes(req.user.id)
+
+        // console.log("restaurant", restaurant)
+        // console.log("------------------")
+        // console.log("restaurant.FavoritedUsers", restaurant.FavoritedUsers)
+        // console.log("------------------")
+        // console.log("restaurant.FavoritedUsers[0]", restaurant.FavoritedUsers[0])
+        // console.log("------------------")
+        // console.log("restaurant.FavoritedUsers[0].id", restaurant.FavoritedUsers[0].id)
+
         return res.render("restaurant.handlebars", {
-          restaurant: restaurant.toJSON()
+          restaurant: restaurant.toJSON(),
+          isFavorited: isFavorited
         })
       })
   },
@@ -168,16 +199,14 @@ const restController = {
       // 1. 取得 restaurants
       Restaurant.findAll({
         // // Plain Object
-        // raw: true,
-        // nest: true,
+        raw: true,
+        nest: true,
         // Odering
         limit: 10,
         order: [["createdAt", "DESC"]],
         // include Model
         include: [{ model: Category }],
         // Plain Object
-        raw: true,
-        nest: true,
       }),
       // 2. 取得 comments
       Comment.findAll({

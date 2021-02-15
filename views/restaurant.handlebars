@@ -17,9 +17,29 @@
       </ul>
     </div>
   </div>
+
   <div class="col-md-8">
     <p>{{restaurant.description}}</p>
+
+    <a class="btn btn-primary" href="/restaurants/{{restaurant.id}}/dashboard">Dashboard</a>
+
+    <!-- isFavorited -->
+    {{#if isFavorited }}
+    <form action="/favorite/{{restaurant.id}}?_method=DELETE" method="POST" style="display: contents;">
+      <button type="submit" class="btn btn-danger">
+        移除最愛
+      </button>
+    </form>
+
+    {{else}}
+    <form action="/favorite/{{restaurant.id}}" method="POST" style="display: contents;">
+      <button type="submit" class="btn btn-primary">
+        加到最愛
+      </button>
+    </form>
+    {{/if}}
   </div>
+
   <hr>
 </div>
 <br />
@@ -88,4 +108,5 @@
 </form>
 
 <!-- 注意：Back 按鈕 -->
-<a href="javascript:history.back()">回上一頁</a>
+{{!-- <a href="javascript:history.back()">回上一頁</a> --}}
+<a href="/restaurants">回首頁</a>
