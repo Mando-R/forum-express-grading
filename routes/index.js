@@ -62,6 +62,9 @@ module.exports = (app, passport) => {
   // [Read]瀏覽 單一 餐廳
   app.get("/restaurants/:id", authenticated, restController.getRestaurant)
 
+  // 美食達人：注意這組路由要放在 GET /users/:id 的前面，不然 /users/top 會被優先用 /users/:id 的結構來解析
+  app.get("/users/top", authenticated, userController.getTopUser)
+
   // [Create/POST]新增評論
   app.post("/comments", authenticated, commentController.postComment)
 
