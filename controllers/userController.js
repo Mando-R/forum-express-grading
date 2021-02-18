@@ -7,6 +7,7 @@ const User = db.User
 const Restaurant = db.Restaurant
 const Comment = db.Comment
 const Favorite = db.Favorite
+const Followship = db.Followship
 
 //注意：render 檔案、redirect 路由
 const userController = {
@@ -101,18 +102,22 @@ const userController = {
       ]
     })
       .then(users => {
-        console.log("users", users)
-
         // 整理 users 資料
         users = users.map(user => ({
           ...user.dataValues,
           // user物件{}內，新增 FollowerCount ，計算追蹤者人數。
           FollowerCount: user.Followers.length,
           // 判斷目前登入使用者是否已追蹤該 User 物件
-          isFollowed: req.user.Followings.map(d => d.id).includes(user.id)
+          isFollowed: req.user.Followings.map(following => following.id).includes(user.dataValues.id)
+          // includes(user.id) 可不加 .dataValues
         }))
 
-        console.log("users", users)
+        // console.log("req.user.Followings", req.user.Followings)
+        // console.log("------------------")
+        // console.log("req.user.Followings[0]=following", req.user.Followings[0])
+        // console.log("------------------")
+        // console.log("req.user.Followings[0]=following.id", req.user.Followings[0].id)
+
         // 依追蹤者人數排序清單
         // 最後有一行 users = users.sort((a, b) => b.FollowerCount - a.FollowerCount)，我們這裡先跳過，把功能做好以後，這個單元後面會補充。
         // .sort()：把陣列按照「字典順序」排序
@@ -121,6 +126,38 @@ const userController = {
 
         return res.render("topUser.handlebars", { users: users })
 
+      })
+  },
+
+  // 追蹤功能：注意 req.user.id vs. req.params.userId
+  addFollowing: (req, res) => {
+    return Followship.create({
+      followerId: req.user.id,
+      followingId: req.params.userId
+    })
+      .then(followship => {
+        // console.log("req.user.id", req.user.id)
+        // console.log("req.params.userId", req.params.userId)
+
+        return res.redirect("/users/top")
+        // return res.redirect("back")
+
+      })
+  },
+
+  removeFollowing: (req, res) => {
+    return Followship.findOne({
+      where: {
+        followerId: req.user.id,
+        followingId: req.params.userId
+      }
+    })
+      .then(followship => {
+        followship.destroy()
+          .then(followship => {
+            return res.redirect("/users/top")
+            // return res.redirect("back")
+          })
       })
   }
 }
