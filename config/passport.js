@@ -52,7 +52,9 @@ passport.deserializeUser((id, cb) => {
   User.findByPk(id, {
     include: [
       // as：標明引入的資料關係，之後使用 req.user，一併取得收藏restaurant 的資料！
-      { model: Restaurant, as: "FavoritedRestaurants" }
+      { model: Restaurant, as: "FavoritedRestaurants" },
+      { model: User, as: "Followers" },
+      { model: User, as: "Followings" }
     ]
   })
     .then(user => {
