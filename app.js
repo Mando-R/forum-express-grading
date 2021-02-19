@@ -73,6 +73,14 @@ app.listen(port, () => {
 // 4. 注意：require('./routes')(app) 需放在 app.js 最後一行，因按照由上而下順序，當 app.js 把 app(即 express()) 傳入 Route 時，程式中間(routes/index.js)做的 Handlebars 設定、Server 設定，也一併透過 app 變數傳入。
 
 // 引入 routes 並將 app 傳進去，讓 routes 可以用 app 這個物件來指定路由
-require("./routes")(app, passport) // 把 passport 傳入 routes
+// require("./routes")(app, passport) // 把 passport 傳入 routes
+
+// 注意：現在因為分了兩層，所以 index.js 不需要用到 passport 了，請把 app.js 單純改成傳入 app 就好
+// require("./routes")(app, passport)改成require("./routes")(app)，在routes.js變成const passport = require("../confi/passport")，引入passport。
+// app：Express 專案本體
+// passport：User 認證相關功能
+
+// 可回顧 todo-list 寫法，可能較直覺。
+require("./routes")(app)
 
 module.exports = app

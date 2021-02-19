@@ -130,6 +130,18 @@ const restController = {
               nextPage: nextPage
             })
           })
+        // .then(categories => {
+        //   return res.json({
+        //     restaurants: data,
+        //     categories: categories,
+        //     categoryId: categoryId,
+        //     // Pagination
+        //     thePage: thePage,
+        //     totalPage: totalPage,
+        //     prevPage: prevPage,
+        //     nextPage: nextPage
+        //   })
+        // })
       })
   },
 
