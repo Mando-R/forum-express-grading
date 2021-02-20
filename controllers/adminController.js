@@ -12,28 +12,34 @@ const Category = db.Category
 const fs = require("fs")
 const { userInfo } = require("os")
 
+// 引入 service/adminService.js
+const adminService = require("../services/adminService.js")
+
 const adminController = {
   // [Read]瀏覽全部餐廳資料：
   // (1) 為一個 function，負責[瀏覽餐廳頁面]，render -> restaurants 的 Handlebars。
   // (2) 為Controller(adminController)內的一個 Action。
   getRestaurants: (req, res) => {
     // .findAll({ raw: true })：查找全部、轉成 plain object。
-    return Restaurant.findAll({
-      raw: true,
-      nest: true,
-      // 對應 const Category = db.Category
-      // 注意：include: [Model]：
-      // 1. include 同時代入[Model]和 有關聯的 Model Data。
-      // 2. 將 Category 傳給 Restaurant.findAll，render -> Handlebars。
-      include: [Category]
-    })
-      .then(restaurants => {
-        // 檢查 include: [Category]
-        // console.log(restaurants)
+    // return Restaurant.findAll({
+    //   raw: true,
+    //   nest: true,
+    //   // 對應 const Category = db.Category
+    //   // 注意：include: [Model]：
+    //   // 1. include 同時代入[Model]和 有關聯的 Model Data。
+    //   // 2. 將 Category 傳給 Restaurant.findAll，render -> Handlebars。
+    //   include: [{ model: Category }]
+    // })
+    //   .then(restaurants => {
+    //     // 檢查 include: [Category]
+    //     // console.log(restaurants)
 
-        // adminController.js 和 admin[Folder] 同一層
-        return res.render("admin/restaurants", { restaurants: restaurants })
-      })
+    //     // adminController.js 和 admin[Folder] 同一層
+    //     return res.render("admin/restaurants", { restaurants: restaurants })
+    //   })
+    adminService.getRestaurants(req, res, (data) => {
+      return res.render("admin/restaurants", (data))
+    })
   },
 
   // [Create]新增一筆餐廳資料(1)：render -> create 頁面 [顯示頁面，非功能(POST動作)]
@@ -232,14 +238,20 @@ const adminController = {
 
   // [Delete]刪除一筆餐廳資料：
   deleteRestaurant: (req, res) => {
-    return Restaurant.findByPk(req.params.id)
-      .then(restaurant => {
-        // restaurant.destroy()：刪除
-        restaurant.destroy()
-          .then(restaurant => {
-            res.redirect("/admin/restaurants")
-          })
-      })
+    // return Restaurant.findByPk(req.params.id)
+    //   .then(restaurant => {
+    //     // restaurant.destroy()：刪除
+    //     restaurant.destroy()
+    //       .then(restaurant => {
+    //         res.redirect("/admin/restaurants")
+    //       })
+    //   })
+    // 判斷式：若收到 success，就跳回後台的餐廳總表
+    adminService.deleteRestaurant(req, res, (data) => {
+      if (data["status"] === "success") {
+        res.redirect("/admin/restaurants")
+      }
+    })
   },
   // Authority 設定(1)：set as user/admin
   getUser: (req, res) => {
