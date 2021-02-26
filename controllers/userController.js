@@ -9,6 +9,14 @@ const Comment = db.Comment
 const Favorite = db.Favorite
 const Followship = db.Followship
 
+// 引入 imgur 套件：整合第三方 Imgur API
+const imgur = require("imgur-node-api")
+const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID  // Client ID -> .env(隱藏敏感資訊)
+
+// 引入 multer 套件的 fs 模組：上傳 image
+const fs = require("fs")
+const { userInfo } = require("os")
+
 //注意：render 檔案、redirect 路由
 const userController = {
   // signUpPage：render -> 註冊頁
@@ -159,6 +167,83 @@ const userController = {
             // return res.redirect("back")
           })
       })
+  },
+
+  // Profile
+  // [GET]瀏覽 Profile
+  getUser: (req, res) => {
+    User.findByPk(req.params.id)
+      .then(user => {
+        // console.log("req.params.id", req.params.id)
+        // console.log("user", user)
+        // console.log("user.dataValues", user.dataValues)
+        return res.render("profile.handlebars",
+          { user: user.toJSON() }
+        )
+      })
+  },
+  // [GET]瀏覽編輯 Profile 頁面
+  editUser: (req, res) => {
+    User.findByPk(req.params.id)
+      .then(user => {
+        // console.log("req.params.id", req.params.id)
+        // console.log("user", user)
+        // console.log("user.dataValues", user.dataValues)
+        return res.render("profileEdit.handlebars",
+          { user: user.toJSON() }
+        )
+      })
+  },
+
+  // [PUT]編輯 Profile：修改自 adminController.putRestaurant
+  putUser: (req, res) => {
+    if (!req.body.name) {
+      req.flash("error_messages", `Name is required!`)
+      return res.redirect("back")
+    }
+    // destructuring(解構賦值)：const file = req.file
+    const { file } = req
+    // 1. 若有圖片：
+    if (file) {
+      // 2. 呼叫 imgur  API
+      imgur.setClientID(IMGUR_CLIENT_ID);
+
+      // 3. 圖片直接從暫存資料夾上傳上去，
+      // .upload(file.path,...)：上傳至 file.path(指令位置)。
+      // img：上傳完的圖片。
+      imgur.upload(file.path, (err, img) => {
+        // 4. 把這個網址放到資料庫裡。
+        // profileEdit.handlebars 的 href="/users/{{user.id}}" -> 用 User.findByPk(req.params.id) 抓 user.id
+        return User.findByPk(req.params.id)
+          .then(user => {
+            user.update({
+              name: req.body.name,
+              // img.fata.link：取得上傳圖片後的 URL。上傳成功後 http://img.data.link/ 會是剛剛上傳後拿到的圖片網址。
+              image: file ? img.data.link : user.image
+            })
+              .then(user => {
+                req.flash('success_messages', `User name " ${req.body.name} " was successfully updated!`)
+
+                return res.redirect(`/users/${user.id}`)
+              })
+          })
+      })
+    }
+    else {
+      return User.findByPk(req.params.id)
+        .then(user => {
+          // restaurant.update：Update 資料
+          user.update({
+            name: req.body.name,
+            image: file ? img.data.link : user.image
+          })
+            .then(user => {
+              req.flash('success_messages', `User name " ${req.body.name} " was successfully updated!`)
+
+              res.redirect(`/users/${user.id}`)
+            })
+        })
+    }
   }
 }
 

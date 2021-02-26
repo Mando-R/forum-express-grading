@@ -4,14 +4,7 @@ const {
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      // define association here
-
       // Model User[1] -> [M]Model Comment
       User.hasMany(models.Comment)
 
@@ -29,7 +22,6 @@ module.exports = (sequelize, DataTypes) => {
         // User Model -> Favorite Model(JOIN Table) -> Restaurant Model(物件{})
         // 即找出 User 收藏的 Restaurant。
         as: "FavoritedRestaurants"
-
       })
 
       // Followship：Model User[M] <-> Model User[M]
@@ -59,7 +51,9 @@ module.exports = (sequelize, DataTypes) => {
     name: DataTypes.STRING,
     email: DataTypes.STRING,
     password: DataTypes.STRING,
-    isAdmin: DataTypes.BOOLEAN
+    isAdmin: DataTypes.BOOLEAN,
+    // 新增欄位：image
+    image: DataTypes.STRING,
   }, {
     sequelize,
     modelName: 'User',

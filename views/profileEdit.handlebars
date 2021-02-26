@@ -1,0 +1,30 @@
+<!-- PUT：修改 1. Name、2.Image -->
+<form action="/users/{{user.id}}?_method=PUT" method="POST" enctype="multipart/form-data">
+
+  <!-- 1. User Name -->
+  <div class="form-group">
+
+    <label for="name">Name</label>
+
+    <input type="text" class="form-control" name="name" id="name" placeholder="Enter user name" value="{{user.name}}">
+
+  </div>
+
+  <!-- 2. User Image：multer 套件 上傳 image -->
+  <div class="form-group">
+
+    <label for="image">Image</label>
+
+    <input type="file" class="form-control-file" id="image" name="image">
+
+  </div>
+
+  <button type="submit" class="btn btn-primary">
+    Submit
+  </button>
+
+  <a class="btn btn-info" href="/users/{{user.id}}" role="button">
+    Back
+  </a>
+
+</form>

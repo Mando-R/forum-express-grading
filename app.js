@@ -10,7 +10,7 @@ const helpers = require("./_helpers")
 
 const app = express()
 const port = process.env.PORT || 3000
-// 若現在環境 非 "production"，則使用 dotenv 資訊。在文件上方加入，現在沒什麼影響，但之後設定變多以後會有順序問題，記得要加在 Passport 之前。
+// 若現在環境 process.env.NODE_ENV 非 "production"，則使用 dotenv 資訊。注意：加在 Passport 之前。
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config()
 }
@@ -56,7 +56,7 @@ app.use((req, res, next) => {
   next()
 })
 
-// (6) multeer(image)：設定靜態檔案路徑 /upload
+// (6) multer(image)：設定靜態檔案路徑 /upload
 // 加上 Route："/upload"，因為是靜態檔案，所以不需像其他 Route 路由一樣寫 Controller 邏輯，直接用 express.static 指定路徑即可。
 app.use("/upload", express.static(__dirname + "/upload"))
 

@@ -1,7 +1,3 @@
-// 引入 imgur 套件：整合第三方 Imgur API
-const imgur = require("imgur-node-api")
-const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID  // Client ID -> .env(隱藏敏感資訊)
-
 // 引入 Restaurant Model
 const db = require("../models")
 const Restaurant = db.Restaurant
@@ -11,6 +7,10 @@ const Category = db.Category
 // 引入 multer 套件的 fs 模組
 const fs = require("fs")
 const { userInfo } = require("os")
+
+// 引入 imgur 套件：整合第三方 Imgur API
+const imgur = require("imgur-node-api")
+const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID  // Client ID -> .env(隱藏敏感資訊)
 
 // 引入 service/adminService.js
 const adminService = require("../services/adminService.js")
@@ -169,7 +169,7 @@ const adminController = {
       })
   },
 
-  // [Update]編輯一筆餐廳資料(2)：Update 功能 [PUT]
+  // [Update／PUT]編輯一筆餐廳資料(2)：Update 功能 [PUT]
   putRestaurant: (req, res) => {
     if (!req.body.name) {
       req.flash("error_messages", `Name didn't exist`)
@@ -192,6 +192,7 @@ const adminController = {
     //           description: req.body.description,
     //           image: file ? `/upload/${file.originalname}` : restaurant.image
     //         })
+    // const { file } = req -> const file = req.file
     const { file } = req
     if (file) {
       imgur.setClientID(IMGUR_CLIENT_ID);

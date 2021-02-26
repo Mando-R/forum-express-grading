@@ -3,17 +3,12 @@ const express = require("express")
 const router = express.Router()
 // 引入 Passport 套件
 const passport = require("../config/passport")
-
 const helpers = require("../_helpers")
 
 const restController = require("../controllers/restController.js")
-
 const adminController = require("../controllers/adminController.js")
-
 const userController = require("../controllers/userController.js")
-
 const categoryController = require("../controllers/categoryController.js")
-
 const commentController = require("../controllers/commentController.js")
 
 // multer 套件(image)：上傳[temp 資料夾] vs. 使用[upload 資料夾]
@@ -87,6 +82,12 @@ router.post("/favorite/:restaurantId", authenticated, userController.addFavorite
 // 移除 最愛
 router.delete("/favorite/:restaurantId", authenticated, userController.removeFavorite)
 
+// User Profile：不受限 admin。
+router.get("/users/:id", authenticated, userController.getUser)
+
+router.get("/users/:id/edit", authenticated, userController.editUser)
+// muler 套件：req 偵測到圖片上傳 upload.single("image")，就會 image 寫入資料夾"temp/"內[const upload = multer({ dest: "temp/" }) ]
+router.put("/users/:id", authenticated, upload.single("image"), userController.putUser)
 
 
 // 2. 後台：adminController ＋ authenticatedAdmin

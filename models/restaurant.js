@@ -43,8 +43,9 @@ module.exports = (sequelize, DataTypes) => {
     address: DataTypes.STRING,
     opening_hours: DataTypes.STRING,
     description: DataTypes.TEXT,
+    // 新增欄位：image
     image: DataTypes.STRING,
-    // 更新欄位清單
+    // 新增欄位：CategoryId
     CategoryId: DataTypes.INTEGER
   }, {
     sequelize,

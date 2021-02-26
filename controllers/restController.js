@@ -179,7 +179,7 @@ const restController = {
         // console.log(restaurant.Comments[0].dataValues)
         // console.log(`-------------------------------`)
         // console.log(restaurant.Comments[0].dataValues.UserId)
-
+        // Passport套件的req.user(註1) ，其內部有一陣列[] FavoritedRestaurants，該陣列[]包含多筆餐廳資料物件{ } (我命名為單數favoritedRestaurant) ，若該陣列[]內每一筆物件favoritedRestaurant的id，includes()(註2) 原本Database內Restaurant Table的id，則 return TRUE，反之為False。
         const isFavorited = restaurant.FavoritedUsers.map(favoritedRestaurant => favoritedRestaurant.id).includes(req.user.id)
 
         // console.log("restaurant", restaurant)
