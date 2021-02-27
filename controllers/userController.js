@@ -172,14 +172,43 @@ const userController = {
   // Profile
   // [GET]瀏覽 Profile
   getUser: (req, res) => {
-    User.findByPk(req.params.id)
+    User.findByPk(req.params.id, {
+      include: [
+        { model: Comment, include: [{ model: Restaurant }] },
+      ]
+    })
       .then(user => {
-        // console.log("req.params.id", req.params.id)
+        // 注意：Array.toJSON()：即可展開內層 dataValues，不須 map + ...。
         // console.log("user", user)
-        // console.log("user.dataValues", user.dataValues)
-        return res.render("profile.handlebars",
-          { user: user.toJSON() }
-        )
+        // console.log("user.toJSON()", user.toJSON())
+        // console.log("user.toJSON().Comments", user.toJSON().Comments)
+
+        // 1. 已分享的評論
+        // const profile = user.toJSON()
+        const comments = user.toJSON().Comments
+        const commentsAmount = comments.length
+        // console.log("comments", comments)
+        // console.log("commentsAmount", commentsAmount)
+
+        // 2. 已評論過的 Restaurant 數量：
+        // (1) 陣列 arrayRestaurantId = 陣列 comments -> .map() 取出每筆 RestaurantId -> .filter() 篩選出不重複值，並 return 一陣列。
+        const arrayRestaurantId =
+          comments.map((item, index) => {
+            return item.RestaurantId
+          }).filter((item, index, array) => {
+            // indexOf(item)：回傳數字順序(從0開始)
+            return array.indexOf(item) === index
+          })
+        // (2) length()：計算數量
+        const commentsRestaurantAmount = arrayRestaurantId.length
+        // console.log(commentRestaurantAmount)
+
+        return res.render("profile.handlebars", {
+          user: user.toJSON(),
+          comments: comments,
+          commentsAmount: commentsAmount,
+          commentsRestaurantAmount: commentsRestaurantAmount,
+        })
       })
   },
   // [GET]瀏覽編輯 Profile 頁面
@@ -188,7 +217,6 @@ const userController = {
       .then(user => {
         // console.log("req.params.id", req.params.id)
         // console.log("user", user)
-        // console.log("user.dataValues", user.dataValues)
         return res.render("profileEdit.handlebars",
           { user: user.toJSON() }
         )
@@ -232,7 +260,7 @@ const userController = {
     else {
       return User.findByPk(req.params.id)
         .then(user => {
-          // restaurant.update：Update 資料
+          // user.update：Update 資料
           user.update({
             name: req.body.name,
             image: file ? img.data.link : user.image

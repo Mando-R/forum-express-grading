@@ -23,5 +23,7 @@ module.exports = {
   moment: function (a) {
     // 2. moment(時間參數).fromNow()："絕對"->"相對"。
     return moment(a).fromNow()
-  }
+  },
+
 }
+

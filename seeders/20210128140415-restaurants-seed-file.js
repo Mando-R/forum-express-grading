@@ -1,7 +1,7 @@
-'use strict';
-
-// 
+// 引入 faker：Fake Data
 const faker = require("faker")
+
+'use strict';
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {

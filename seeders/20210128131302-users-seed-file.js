@@ -19,7 +19,10 @@ module.exports = {
       // createdAt 和 updatedAt：兩欄位的值也須一並附上，因sequelize 的 bulkInsert 也和 mongoose 的 insertMany 一樣，預設不帶入 timestamp。
       // new Date()：獲取現在時間。
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
+
+      // 新增 User Image
+      image: `https://loremflickr.com/320/240/avatar/?random=${Math.random() * 100}`
     },
     {
       email: "user1@example.com",
@@ -27,7 +30,10 @@ module.exports = {
       isAdmin: false,
       name: "user1",
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
+
+      // 新增 User Image
+      image: `https://loremflickr.com/320/240/avatar/?random=${Math.random() * 100}`
     },
     {
       email: "user2@example.com",
@@ -35,7 +41,10 @@ module.exports = {
       isAdmin: false,
       name: "user2",
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
+
+      // 新增 User Image
+      image: `https://loremflickr.com/320/240/avatar/?random=${Math.random() * 100}`
     }
     ], {});
   },
