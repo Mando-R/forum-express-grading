@@ -63,6 +63,9 @@ router.get("/restaurants/feeds", authenticated, restController.getFeeds)
 // [Read]瀏覽 單一 餐廳
 router.get("/restaurants/:id", authenticated, restController.getRestaurant)
 
+// Dashboard
+router.get('/restaurants/:id/dashboard', authenticated, restController.getDashboard)
+
 // 美食達人
 // 注意：這組路由要放在 GET /users/:id 的前面，不然 /users/top 會被優先用 /users/:id 的結構來解析
 router.get("/users/top", authenticated, userController.getTopUser)

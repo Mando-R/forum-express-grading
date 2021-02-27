@@ -183,7 +183,23 @@ const restController = {
         })
       })
   },
+  // Dashboard
+  getDashboard: (req, res) => {
+    return Restaurant.findByPk(req.params.id, {
+      include: [
+        { model: Category },
+        { model: Comment, include: [{ model: User }] }
+      ]
+    }).then(restaurant => {
+      // console.log("restaurant", restaurant)
+      // console.log("restaurant.name", restaurant.name)
 
+      // console.log("restaurant.Category", restaurant.Category)
+      // console.log("restaurant.Category.name", restaurant.Category.name)
+
+      return res.render("dashboard.handlebars", { restaurant: restaurant.toJSON() })
+    })
+  },
   // Odering：2. 迭代：getFeeds 改寫 Promise.all
   // "1. 傳統.then()寫法" 流程中先呼叫 Restaurant.findAll，等 Restaurant.findAll 執行結束後，才在後續.then()流程呼叫 Comment.findAll。
 
