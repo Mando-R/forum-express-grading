@@ -46,7 +46,9 @@ module.exports = (sequelize, DataTypes) => {
     // 新增欄位：image
     image: DataTypes.STRING,
     // 新增欄位：CategoryId
-    CategoryId: DataTypes.INTEGER
+    CategoryId: DataTypes.INTEGER,
+    // 新增欄位：viewCounts 計算瀏覽/點擊次數 
+    viewCounts: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'Restaurant',

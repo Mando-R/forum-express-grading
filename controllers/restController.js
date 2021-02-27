@@ -190,16 +190,38 @@ const restController = {
         { model: Category },
         { model: Comment, include: [{ model: User }] }
       ]
-    }).then(restaurant => {
-      // console.log("restaurant", restaurant)
-      // console.log("restaurant.name", restaurant.name)
-
-      // console.log("restaurant.Category", restaurant.Category)
-      // console.log("restaurant.Category.name", restaurant.Category.name)
-
-      return res.render("dashboard.handlebars", { restaurant: restaurant.toJSON() })
     })
+      .then(restaurant => {
+        // console.log("restaurant", restaurant)
+        // console.log("restaurant.viewCounts", restaurant.viewCounts)
+        // console.log("restaurant.name", restaurant.name)
+        // 計算 viewCounts：
+        // 1. .update() 組合：最精簡
+        restaurant.update({
+          viewCounts: restaurant.viewCounts += 1
+        })
+          .then(restaurant => {
+            // console.log("restaurant.viewCounts", restaurant.viewCounts)
+            return res.render("dashboard.handlebars", { restaurant: restaurant.toJSON() })
+          })
+
+        // 2. .save() 組合：3 種寫法：
+        // (1) ?：3 元運算子
+        // restaurant.viewCounts = restaurant.viewCounts ? restaurant.viewCounts + 1 : 0
+        // (2) 冗長
+        // restaurant.viewCounts = restaurant.viewCounts + 1
+        // (3) 精簡
+        // restaurant.viewCounts += 1
+        // restaurant.save()
+        //   .then(restaurant => {
+
+        //     console.log("restaurant.viewCounts", restaurant.viewCounts)
+
+        //     return res.render("dashboard.handlebars", { restaurant: restaurant.toJSON() })
+        //   })
+      })
   },
+
   // Odering：2. 迭代：getFeeds 改寫 Promise.all
   // "1. 傳統.then()寫法" 流程中先呼叫 Restaurant.findAll，等 Restaurant.findAll 執行結束後，才在後續.then()流程呼叫 Comment.findAll。
 
