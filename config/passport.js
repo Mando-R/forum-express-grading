@@ -50,9 +50,13 @@ passport.serializeUser((user, cb) => {
 passport.deserializeUser((id, cb) => {
   // 注意：從 User Model(Database) 取出 user Data。
   User.findByPk(id, {
+    // 注意：passport.js 設定 passport.deserializeUser[Eager Loading] -> req.user：isFavorited、isLiked
     include: [
-      // as：標明引入的資料關係，之後使用 req.user，一併取得收藏restaurant 的資料！
+      // as：標明引入的資料關係，之後使用 "req.user"，一併取得收藏restaurant 的資料！
+      // isFavorited
       { model: Restaurant, as: "FavoritedRestaurants" },
+      // isLiked
+      { model: Restaurant, as: "LikedRestaurants" },
       { model: User, as: "Followers" },
       { model: User, as: "Followings" }
     ]

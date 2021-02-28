@@ -80,10 +80,17 @@ router.post("/comments", authenticated, commentController.postComment)
 // [Delete]刪除一筆評論(Comment)：限制 Admin 權限
 router.delete("/comments/:id", authenticatedAdmin, commentController.deleteComment)
 
-// 加到 最愛
+// isFavorited
+// (1) 加到 最愛
 router.post("/favorite/:restaurantId", authenticated, userController.addFavorite)
-// 移除 最愛
+// (2) 移除 最愛
 router.delete("/favorite/:restaurantId", authenticated, userController.removeFavorite)
+
+// isLiked
+// (1) Like
+router.post('/like/:restaurantId', authenticated, userController.addLike)
+// (2) Unlike
+router.delete('/like/:restaurantId', authenticated, userController.removeLike)
 
 // User Profile：不受限 admin。
 router.get("/users/:id", authenticated, userController.getUser)

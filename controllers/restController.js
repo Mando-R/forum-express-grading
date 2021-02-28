@@ -28,7 +28,6 @@ const restController = {
 
     // whereQuery = {}：建立傳入 findAll 的參數，包裝成物件{}。
     const whereQuery = {}
-
     // 放入 whereQuery = {} 內的 function
     let categoryId = ""
     // 對照 restaurants.handlebars 的 href="?categoryId={{this.id}}：若 request 內含 categoryId
@@ -92,26 +91,21 @@ const restController = {
 
           // (3) render -> Handlebars：
           // 注意 categoryName 設定，由於新版 Handlebars 限制直接把特殊物件傳給前端樣板，現需在後端 controller 裡整理好所有要用到的資料。
-
           // 因此改成直新增命名 categoryName 屬性，把類別名稱放進來：categoryName: r.Category.name
           categoryName: restaurant.dataValues.Category.name,
 
-          // 解讀(isFavorited = TRUE/FALSE)：
+          // (4) 注意：passport.js 設定 passport.deserializeUser[Eager Loading] 放入 req.user(isFavorited、isLiked)
+          isFavorited: req.user.FavoritedRestaurants.map(favoritedRestaurant => favoritedRestaurant.id).includes(restaurant.dataValues.id),
+
+          isLiked: req.user.LikedRestaurants.map(LikedRestaurant => LikedRestaurant.id).includes(restaurant.dataValues.id)
           // Passport套件的req.user(註1)，其內部有一陣列[]FavoritedRestaurants，該陣列[]包含多筆餐廳資料物件{}(我命名為單數FavoritedRestaurant)，若該陣列[]內每一筆物件FavoritedRestaurant的id，包含(includes() 註2)原本Database內Restaurant Table的id，則 return TRUE，反之為False。
-
-          // 註1：已先在passport.js設定include:{ model: Restaurant, as: "FavoritedRestaurants" }，表示透過User.findByPk(id...)，以UserId查找User資料同時，該User資料內層也包含(include)和UserId相關聯的Restaurant資料。
-
+          // 註1：已先在passport.js設定include:{ model: Restaurant, as: "FavoritedRestaurants" }，表示透過User.findByPk(id...)，以UserId查找User資料同時，該User資料(req.user)內層也包含(include)和UserId相關聯的Restaurant資料。
           // 註2：includes()：The includes() method determines whether an array includes a certain value among its entries, returning TRUE or FALSE as appropriate.
-
-          // 註3：我將 isFavorited: req.user.FavoritedRestaurants.map(d => d.id).includes(r.id) 改寫成 isFavorited: req.user.FavoritedRestaurants.map(FavoritedRestaurant => FavoritedRestaurant.id).includes(restaurant.dataValues.id)
-
-          isFavorited: req.user.FavoritedRestaurants.map(favoritedRestaurant => favoritedRestaurant.id).includes(restaurant.dataValues.id)
         }))
         // console.log("req.user", req.user)
         // console.log("------------------")
         // console.log("req.user[0]", req.user[0])
         // console.log("------------------")
-
         // console.log("data[0]", data[0])
 
         Category.findAll({
@@ -130,18 +124,6 @@ const restController = {
               nextPage: nextPage
             })
           })
-        // .then(categories => {
-        //   return res.json({
-        //     restaurants: data,
-        //     categories: categories,
-        //     categoryId: categoryId,
-        //     // Pagination
-        //     thePage: thePage,
-        //     totalPage: totalPage,
-        //     prevPage: prevPage,
-        //     nextPage: nextPage
-        //   })
-        // })
       })
   },
 
@@ -155,7 +137,9 @@ const restController = {
         { model: Category },
         { model: Comment, include: [{ model: User }] },
         // isFavorited
-        { model: User, as: "FavoritedUsers" }
+        { model: User, as: "FavoritedUsers" },
+        // isLiked
+        { model: User, as: "LikedUsers" },
       ]
     })
       .then(restaurant => {
@@ -170,7 +154,8 @@ const restController = {
         // Passport套件的req.user(註1) ，其內部有一陣列[] FavoritedRestaurants，該陣列[]包含多筆餐廳資料物件{ } (我命名為單數favoritedRestaurant) ，若該陣列[]內每一筆物件favoritedRestaurant的id，includes()(註2) 原本Database內Restaurant Table的id，則 return TRUE，反之為False。
         const isFavorited = restaurant.FavoritedUsers.map(favoritedRestaurant => favoritedRestaurant.id).includes(req.user.id)
 
-        // console.log("restaurant", restaurant)
+        const isLiked = restaurant.LikedUsers.map(LikedUser => LikedUser.id).includes(req.user.id)
+        console.log("restaurant", restaurant)
         // console.log("------------------")
         // console.log("restaurant.FavoritedUsers", restaurant.FavoritedUsers)
         // console.log("------------------")
@@ -179,7 +164,8 @@ const restController = {
         // console.log("restaurant.FavoritedUsers[0].id", restaurant.FavoritedUsers[0].id)
         return res.render("restaurant.handlebars", {
           restaurant: restaurant.toJSON(),
-          isFavorited: isFavorited
+          isFavorited: isFavorited,
+          isLiked: isLiked
         })
       })
   },

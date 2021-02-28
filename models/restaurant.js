@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
       // Model Restaurant[1] -> [M]Model Comment
       Restaurant.hasMany(models.Comment)
 
+      // isFavorited
       // 注意：Model Restaurant[M] -> [M]Model User
       // Model.belongsToMany：多對多
       Restaurant.belongsToMany(models.User, {
@@ -35,6 +36,16 @@ module.exports = (sequelize, DataTypes) => {
         // 即找出收藏 Restaurant 的 User。
         as: "FavoritedUsers"
       })
+
+      // isLiked
+      // 注意：Model Restaurant[M] -> [M]Model User
+      // Model.belongsToMany：多對多
+      Restaurant.belongsToMany(models.User, {
+        through: models.Like,
+        foreignKey: "RestaurantId",
+        as: "LikedUsers"
+      })
+
     }
   };
   Restaurant.init({

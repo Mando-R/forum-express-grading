@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
       // Model User[1] -> [M]Model Comment
       User.hasMany(models.Comment)
 
+      // isFavorited
       // Model User[M] -> [M]Model Restaurant
       // 注意：User 相關 Passport 套件，所以 Passport.js 新增{model}設定。
       User.belongsToMany(models.Restaurant, {
@@ -22,6 +23,15 @@ module.exports = (sequelize, DataTypes) => {
         // User Model -> Favorite Model(JOIN Table) -> Restaurant Model(物件{})
         // 即找出 User 收藏的 Restaurant。
         as: "FavoritedRestaurants"
+      })
+
+      // isLiked
+      // Model User[M] -> [M]Model Restaurant
+      // 注意：User 相關 Passport 套件，所以 Passport.js 新增{model}設定。
+      User.belongsToMany(models.Restaurant, {
+        through: models.Like,
+        foreighKey: "UserId",
+        as: "LikedRestaurants"
       })
 
       // Followship：Model User[M] <-> Model User[M]

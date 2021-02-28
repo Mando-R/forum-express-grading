@@ -7,6 +7,7 @@ const User = db.User
 const Restaurant = db.Restaurant
 const Comment = db.Comment
 const Favorite = db.Favorite
+const Like = db.Like
 const Followship = db.Followship
 
 // 引入 imgur 套件：整合第三方 Imgur API
@@ -74,7 +75,8 @@ const userController = {
     res.redirect("/signin")
   },
 
-  // 加入最愛 功能
+  // isFavorited：
+  // (1) 加入最愛 功能
   addFavorite: (req, res) => {
     return Favorite.create({
       UserId: req.user.id,
@@ -84,7 +86,7 @@ const userController = {
         return res.redirect("back")
       })
   },
-  // 移除最愛 功能
+  // (2) 移除最愛 功能
   removeFavorite: (req, res) => {
     return Favorite.findOne({
       where: {
@@ -94,6 +96,34 @@ const userController = {
     })
       .then(favorite => {
         favorite.destroy()
+          .then(restaurant => {
+            return res.redirect("back")
+          })
+      })
+  },
+
+  // isLiked：記得修改 restController.
+  // (1) Like
+  addLike: (req, res) => {
+    return Like.create({
+      UserId: req.user.id,
+      RestaurantId: req.params.restaurantId
+    })
+      .then(restaurant => {
+        return res.redirect("back")
+      })
+  },
+
+  // (2) Unlike
+  removeLike: (req, res) => {
+    return Like.findOne({
+      where: {
+        UserId: req.user.id,
+        RestaurantId: req.params.restaurantId
+      }
+    })
+      .then(like => {
+        like.destroy()
           .then(restaurant => {
             return res.redirect("back")
           })

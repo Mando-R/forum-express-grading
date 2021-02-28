@@ -1,20 +1,20 @@
 'use strict';
-
 const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class Favorite extends Model {
+  class Like extends Model {
+
     static associate(models) {
       // define association here
     }
   };
-  Favorite.init({
-    UserId: DataTypes.INTEGER,
-    RestaurantId: DataTypes.INTEGER
+  Like.init({
+    UserId: DataTypes.STRING,
+    RestaurantId: DataTypes.STRING
   }, {
     sequelize,
-    modelName: 'Favorite',
+    modelName: 'Like',
   });
-  return Favorite;
+  return Like;
 };
