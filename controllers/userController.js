@@ -130,11 +130,12 @@ const userController = {
       })
   },
 
-  // 美食達人頁面
+  // Follow：美食達人頁面
   // 總之這裡就是指定這個 users 陣列要用 FollowerCount 來排序。因為這是一個「達人排行榜」，所以追蹤者人數 (FollowerCount) 最多的需要排在最前面。而 FollowerCount 並不是 Sequelize 物件的一部分，所以要在 users 陣列清單整理好了以後，再用陣列方法 sort 來排序。
   getTopUser: (req, res) => {
     // 撈出所有 User 與 followers 資料
     return User.findAll({
+      // as: "Followers"－找 Follower
       include: [
         { model: User, as: "Followers" }
       ]
@@ -143,13 +144,14 @@ const userController = {
         // 整理 users 資料
         users = users.map(user => ({
           ...user.dataValues,
-          // user物件{}內，新增 FollowerCount ，計算追蹤者人數。
+          // passport.js 設定：user物件{}內，新增 FollowerCount ，計算追蹤者人數。
           FollowerCount: user.Followers.length,
-          // 判斷目前登入使用者是否已追蹤該 User 物件
+          // 判斷目前登入使用者(req.user)是否已追蹤該 User 物件
           isFollowed: req.user.Followings.map(following => following.id).includes(user.dataValues.id)
-          // includes(user.id) 可不加 .dataValues
         }))
 
+        // console.log("req.user", req.user)
+        // console.log("------------------")
         // console.log("req.user.Followings", req.user.Followings)
         // console.log("------------------")
         // console.log("req.user.Followings[0]=following", req.user.Followings[0])

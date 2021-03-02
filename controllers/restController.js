@@ -1,9 +1,11 @@
 // 引入 Restaurant Model
 const db = require("../models")
+const favorite = require("../models/favorite")
 const Restaurant = db.Restaurant
 const Category = db.Category
 const Comment = db.Comment
 const User = db.User
+const Favorite = db.Favorite
 
 // Pagination：避免「magic number」(未命名數字)
 // Pagination：amountPerPage 限制每頁顯示筆數
@@ -42,7 +44,7 @@ const restController = {
       // 條件1. include：一併拿出關聯的 Category model。
       include: [{ model: Category }],
       // include: Category,
-      // 條件2. where：傳入 where 篩選結果，必須為物件{}。
+      // 條件2. where(Category／categoryId)：傳入 where 篩選結果，必須為物件{}。
       where: whereQuery,
       // 條件3. Pagination
       offset: offset,
@@ -169,6 +171,7 @@ const restController = {
         })
       })
   },
+
   // Dashboard
   getDashboard: (req, res) => {
     return Restaurant.findByPk(req.params.id, {
@@ -208,6 +211,85 @@ const restController = {
       })
   },
 
+  // Top 10 Favorited Restaurants
+  getTopRest: (req, res) => {
+    // 寫法一、推測效能應該較好
+    // (1) Favorite 先撈出、count、整理 前 10 筆 RestaurantId。
+    // (2) Restaurant.findAll 只撈出 該 10 筆。
+    return Favorite.count({
+      group: ["RestaurantId"]
+    })
+      .then(favoriteRest => {
+        // console.log("favoriteRest", favoriteRest)
+        // console.log("------------------")
+
+        // .sort()：排序 大 -> 小
+        favoriteRest.sort((a, b) => {
+          a.RestaurantId - b.RestaurantId
+          return b.count - a.count
+        })
+        // console.log("favoriteRest", favoriteRest)
+        // console.log("------------------")
+
+        // .slice()：切出 前 10 筆
+        const top10favRest = favoriteRest.slice(0, 10)
+        // console.log("top10favRest", top10favRest)
+        // console.log("------------------")
+
+        // .map()：抓出 RestaurantId，並產生新 Array。
+        const top10favRestId = top10favRest.map((item, index) => { return item.RestaurantId })
+        // console.log("top10favRestId", top10favRestId)
+        // console.log("------------------")
+
+        Restaurant.findAll({
+          where: { id: top10favRestId },
+          include: [
+            { model: User, as: "FavoritedUsers" }
+          ]
+        })
+          .then(restaurants => {
+            // 整理 restaurants 資料
+            restaurants = restaurants.map(restaurant => ({
+              ...restaurant.dataValues,
+              // 在 restaurant物件{}內，新增 FavoriteCount，計算追蹤者人數。
+              FavoriteCount: restaurant.FavoritedUsers.length,
+              // 判斷目前登入使用者(req.user)是否已追蹤該 User 物件
+              isFavorited: req.user.FavoritedRestaurants.map(FavoritedRestaurant => FavoritedRestaurant.id).includes(restaurant.dataValues.id)
+            }))
+
+            return res.render("topRest.handlebars", { restaurants: restaurants })
+          })
+      })
+
+    // // 寫法二、Restaurant.findAll 撈出全部 data：效能應該較差
+    // return Restaurant.findAll({
+    //   include: [
+    //     { model: User, as: "FavoritedUsers" }
+    //   ]
+    // })
+    //   .then(restaurants => {
+    //     // 整理 users 資料
+    //     restaurants = restaurants.map(restaurant => ({
+    //       ...restaurant.dataValues,
+    //       // restaurant 物件{}內，新增 FavoriteCount ，計算追蹤者人數。
+    //       FavoriteCount: restaurant.FavoritedUsers.length,
+    //       // 判斷目前登入使用者(req.user)是否已追蹤該 User 物件
+    //       isFavorited: req.user.FavoritedRestaurants.map(FavoritedRestaurant => FavoritedRestaurant.id).includes(restaurant.dataValues.id)
+    //     }))
+    //     // console.log("req.user", req.user)
+    //     // console.log("------------------")
+    //     // console.log("restaurants[0].FavoritedUsers", restaurants[0].FavoritedUsers)
+    //     // console.log("restaurants[0].FavoritedUsers.length", restaurants[0].FavoritedUsers.length)
+
+    //     // .sort()：依照 FavoriteCount 排序
+    //     restaurants = restaurants.sort((a, b) => b.FavoriteCount - a.FavoriteCount)
+    //     // slice()：切出前 10 筆
+    //     restaurants = restaurants.slice(0, 10)
+
+    //     return res.render("topRest.handlebars", { restaurants: restaurants })
+    //   })
+  },
+
   // Odering：2. 迭代：getFeeds 改寫 Promise.all
   // "1. 傳統.then()寫法" 流程中先呼叫 Restaurant.findAll，等 Restaurant.findAll 執行結束後，才在後續.then()流程呼叫 Comment.findAll。
 
@@ -221,7 +303,7 @@ const restController = {
     return Promise.all([
       // 1. 取得 restaurants
       Restaurant.findAll({
-        // // Plain Object
+        // Plain Object
         raw: true,
         nest: true,
         // Odering

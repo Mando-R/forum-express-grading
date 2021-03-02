@@ -60,13 +60,16 @@ router.get("/restaurants", authenticated, restController.getRestaurants)
 // 注意："/restaurants/feeds" 也符合動態路由 "/restaurants/:id" 結構，被視為「:id 是 feeds」而導向[Read]單一餐廳頁面。
 router.get("/restaurants/feeds", authenticated, restController.getFeeds)
 
+// Top10Rest
+router.get("/restaurants/top", authenticated, restController.getTopRest)
+
 // [Read]瀏覽 單一 餐廳
 router.get("/restaurants/:id", authenticated, restController.getRestaurant)
 
 // Dashboard
 router.get('/restaurants/:id/dashboard', authenticated, restController.getDashboard)
 
-// 美食達人
+// Follow 美食達人
 // 注意：這組路由要放在 GET /users/:id 的前面，不然 /users/top 會被優先用 /users/:id 的結構來解析
 router.get("/users/top", authenticated, userController.getTopUser)
 

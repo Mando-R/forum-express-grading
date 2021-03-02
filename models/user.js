@@ -34,10 +34,10 @@ module.exports = (sequelize, DataTypes) => {
         as: "LikedRestaurants"
       })
 
+      // 自關聯 (Self-referential Relationships) 或自連接 (Self Joins)
       // Followship：Model User[M] <-> Model User[M]
       // 注意：User 相關 Passport 套件，所以 Passport.js 新增{model}設定。
       User.belongsToMany(User, {
-        // Followship Table
         through: models.Followship,
         // User Model[固定 followingId(FK) -> followerId(FK)] -> User Model(從 following 找 follower)
         foreignKey: "followingId",
@@ -46,7 +46,6 @@ module.exports = (sequelize, DataTypes) => {
       })
 
       User.belongsToMany(User, {
-        // Followship Table
         through: models.Followship,
         // User Model[固定 followerId(FK) -> followingId(FK)] -> User Model(從 follower 找 following)
         foreignKey: "followerId",
