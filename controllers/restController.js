@@ -1,6 +1,6 @@
 // 引入 Restaurant Model
 const db = require("../models")
-const favorite = require("../models/favorite")
+// const favorite = require("../models/favorite")
 const Restaurant = db.Restaurant
 const Category = db.Category
 const Comment = db.Comment
@@ -225,7 +225,7 @@ const restController = {
 
         // .sort()：排序 大 -> 小
         favoriteRest.sort((a, b) => {
-          a.RestaurantId - b.RestaurantId
+          // a.RestaurantId - b.RestaurantId
           return b.count - a.count
         })
         // console.log("favoriteRest", favoriteRest)
