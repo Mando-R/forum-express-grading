@@ -185,7 +185,7 @@ const restController = {
         // console.log("restaurant.viewCounts", restaurant.viewCounts)
         // console.log("restaurant.name", restaurant.name)
         // 計算 viewCounts：
-        // 1. .update() 組合：最精簡
+        // 1..update() 組合：最精簡
         restaurant.update({
           viewCounts: restaurant.viewCounts += 1
         })
@@ -196,97 +196,84 @@ const restController = {
 
         // 2. .save() 組合：3 種寫法：
         // (1) ?：3 元運算子
-        // restaurant.viewCounts = restaurant.viewCounts ? restaurant.viewCounts + 1 : 0
+        //// restaurant.viewCounts = restaurant.viewCounts ? restaurant.viewCounts + 1 : 0
         // (2) 冗長
-        // restaurant.viewCounts = restaurant.viewCounts + 1
+        //// restaurant.viewCounts = restaurant.viewCounts + 1
         // (3) 精簡
-        // restaurant.viewCounts += 1
-        // restaurant.save()
-        //   .then(restaurant => {
+        ////restaurant.viewCounts += 1
+        //   restaurant.save()
+        //     .then(restaurant => {
 
-        //     console.log("restaurant.viewCounts", restaurant.viewCounts)
+        //       console.log("restaurant.viewCounts", restaurant.viewCounts)
 
-        //     return res.render("dashboard.handlebars", { restaurant: restaurant.toJSON() })
-        //   })
+        //       return res.render("dashboard.handlebars", { restaurant: restaurant.toJSON() })
+        //     })
       })
   },
 
   // Top 10 Favorited Restaurants
   getTopRest: (req, res) => {
-    // 寫法一、推測效能應該較好
-    // (1) Favorite 先撈出、count、整理 前 10 筆 RestaurantId。
-    // (2) Restaurant.findAll 只撈出 該 10 筆。
-    return Favorite.count({
-      group: ["RestaurantId"]
+    // 寫法一、Restaurant.findAll 撈出全部 data
+    return Restaurant.findAll({
+      include: [
+        { model: User, as: "FavoritedUsers" }
+      ]
     })
-      .then(favoriteRest => {
-        // console.log("favoriteRest", favoriteRest)
+      .then(restaurants => {
+        // 整理 users 資料
+        restaurants = restaurants.map(restaurant => ({
+          ...restaurant.dataValues,
+          // restaurant 物件{}內，新增 FavoriteCount ，計算追蹤者人數。
+          FavoriteCount: restaurant.FavoritedUsers.length,
+          // 判斷目前登入使用者(req.user)是否已追蹤該 User 物件
+          isFavorited: req.user.FavoritedRestaurants.map(FavoritedRestaurant => FavoritedRestaurant.id).includes(restaurant.dataValues.id)
+        }))
+        // console.log("req.user", req.user)
         // console.log("------------------")
+        // console.log("restaurants[0].FavoritedUsers", restaurants[0].FavoritedUsers)
+        // console.log("restaurants[0].FavoritedUsers.length", restaurants[0].FavoritedUsers.length)
 
-        // .sort()：排序 大 -> 小
-        favoriteRest.sort((a, b) => {
-          // a.RestaurantId - b.RestaurantId
-          return b.count - a.count
-        })
-        // console.log("favoriteRest", favoriteRest)
-        // console.log("------------------")
+        // .sort()：依照 先前放入的 FavoriteCount 排序
+        restaurants = restaurants.sort((a, b) => b.FavoriteCount - a.FavoriteCount)
+        // slice()：切出前 10 筆
+        const top10FavRest = restaurants.slice(0, 10)
 
-        // .slice()：切出 前 10 筆
-        const top10favRest = favoriteRest.slice(0, 10)
-        // console.log("top10favRest", top10favRest)
-        // console.log("------------------")
-
-        // .map()：抓出 RestaurantId，並產生新 Array。
-        const top10favRestId = top10favRest.map((item, index) => { return item.RestaurantId })
-        // console.log("top10favRestId", top10favRestId)
-        // console.log("------------------")
-
-        Restaurant.findAll({
-          where: { id: top10favRestId },
-          include: [
-            { model: User, as: "FavoritedUsers" }
-          ]
-        })
-          .then(restaurants => {
-            // 整理 restaurants 資料
-            restaurants = restaurants.map(restaurant => ({
-              ...restaurant.dataValues,
-              // 在 restaurant物件{}內，新增 FavoriteCount，計算追蹤者人數。
-              FavoriteCount: restaurant.FavoritedUsers.length,
-              // 判斷目前登入使用者(req.user)是否已追蹤該 User 物件
-              isFavorited: req.user.FavoritedRestaurants.map(FavoritedRestaurant => FavoritedRestaurant.id).includes(restaurant.dataValues.id)
-            }))
-
-            return res.render("topRest.handlebars", { restaurants: restaurants })
-          })
+        return res.render("topRest.handlebars", { restaurants: top10FavRest })
       })
 
-    // // 寫法二、Restaurant.findAll 撈出全部 data：效能應該較差
-    // return Restaurant.findAll({
-    //   include: [
-    //     { model: User, as: "FavoritedUsers" }
-    //   ]
+    // 寫法二、嘗試優化但失敗。嘗試方式為先直接處理 Favorite Table(用count篩選和排序)，找出 Top 10 的 RestaurantId，再以此找出 10 Restaurant。
+    // 推測效能應該較好，但出現 Top 10 Restaurant 無法依據 Favorite 數量更新的問題，研究Table結構和之前的Controller，推測主因為點擊Favotire後，Sequelize處理 Favorite Table 的速度，快於新的RestaurantId 產生(加入最愛)或減少(移除最愛)的速度。
+    // (1) Favorite 先 count 前 10 筆 RestaurantId，之後(2) Restaurant.findAll 再撈出 該 10 筆，避免一次處理全部 Restaurant。
+    // return Favorite.count({
+    //   group: ["RestaurantId"]
     // })
-    //   .then(restaurants => {
-    //     // 整理 users 資料
-    //     restaurants = restaurants.map(restaurant => ({
-    //       ...restaurant.dataValues,
-    //       // restaurant 物件{}內，新增 FavoriteCount ，計算追蹤者人數。
-    //       FavoriteCount: restaurant.FavoritedUsers.length,
-    //       // 判斷目前登入使用者(req.user)是否已追蹤該 User 物件
-    //       isFavorited: req.user.FavoritedRestaurants.map(FavoritedRestaurant => FavoritedRestaurant.id).includes(restaurant.dataValues.id)
-    //     }))
-    //     // console.log("req.user", req.user)
-    //     // console.log("------------------")
-    //     // console.log("restaurants[0].FavoritedUsers", restaurants[0].FavoritedUsers)
-    //     // console.log("restaurants[0].FavoritedUsers.length", restaurants[0].FavoritedUsers.length)
-
-    //     // .sort()：依照 FavoriteCount 排序
-    //     restaurants = restaurants.sort((a, b) => b.FavoriteCount - a.FavoriteCount)
-    //     // slice()：切出前 10 筆
-    //     restaurants = restaurants.slice(0, 10)
-
-    //     return res.render("topRest.handlebars", { restaurants: restaurants })
+    //   .then(favoriteRest => {
+    //     // .sort()：排序 大 -> 小
+    //     favoriteRest.sort((a, b) => {
+    //       return b.count - a.count
+    //     })
+    //     // .slice()：切出 前 10 筆
+    //     const top10FavRest = favoriteRest.slice(0, 10)
+    //     // .map()：抓出 RestaurantId，並產生新 Array。
+    //     const top10FavRestId = top10FavRest.map((item, index) => { return item.RestaurantId })
+    //     // 用 id (top10favRestId) 找出該 10 筆 Restaurant
+    //     Restaurant.findAll({
+    //       where: { id: top10FavRestId },
+    //       include: [
+    //         { model: User, as: "FavoritedUsers" }
+    //       ]
+    //     })
+    //       .then(restaurants => {
+    //         // 整理 restaurants 資料
+    //         restaurants = restaurants.map(restaurant => ({
+    //           ...restaurant.dataValues,
+    //           // 在 restaurant物件{}內，新增 FavoriteCount，計算追蹤者人數。
+    //           FavoriteCount: restaurant.FavoritedUsers.length,
+    //           // 判斷目前登入使用者(req.user)是否已追蹤該 User 物件
+    //           isFavorited: req.user.FavoritedRestaurants.map(FavoritedRestaurant => FavoritedRestaurant.id).includes(restaurant.dataValues.id)
+    //         }))
+    //         return res.render("topRest.handlebars", { restaurants: restaurants })
+    //       })
     //   })
   },
 
