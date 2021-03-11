@@ -14,6 +14,10 @@ const port = process.env.PORT || 3000
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config()
 }
+
+// 注意：避免先載入 passport，依順序卻尚未載入 dotenv。
+// 調整順序讓 passport.js 吃到環境參數.env 檔案，passport 必須放在 process.env.NODE_ENV 下方。
+// 也可在 passport.js 直接引入 require('dotenv').config()。
 const passport = require("./config/passport.js")
 const session = require("express-session")
 const flash = require("connect-flash")

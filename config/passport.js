@@ -1,5 +1,7 @@
-// 注意：req.user 取得 Passport 套件 包裝後的資料。
+// 引入 .env
+require('dotenv').config()
 
+// 注意：req.user 取得 Passport 套件 包裝後的資料。
 const passport = require("passport")
 const LocalStrategy = require("passport-local")
 const bcrypt = require("bcryptjs")
@@ -77,6 +79,47 @@ passport.deserializeUser((id, cb) => {
 // 當資料很大包、會頻繁使用資料，但用到的欄位又很少時，就會考慮使用序列化技巧節省空間。
 
 // 這裡 Passport 已準備好序列化和反序列化的實作，把這段程式碼加到 Passport 設定檔裡，以後就可呼叫這兩個方法。
+
+// JWT(JSON Web Token) 登入機制：對比上方 Deserialize user
+const jwt = require("jsonwebtoken")
+const passportJWT = require("passport-jwt")
+const ExtractJwt = passportJWT.ExtractJwt
+const JwtStrategy = passportJWT.Strategy
+
+// 設定 變數物件{} = jwtOptions
+let jwtOptions = {}
+
+// jwtOptions.jwtFromRequest：設定何處找 token，指定 authorization header 的 bearer 項目。
+jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken()
+
+// jwtOptions.secretOrKey：使用密鑰檢查 token 是否經過纂改，密鑰 = 放進 process.env.JWT_SECRET 的 "alphacamp" 字串，這組密鑰只有 Server 知道。
+jwtOptions.secretOrKey = process.env.JWT_SECRET
+
+let strategy = new JwtStrategy(jwtOptions, function (jwt_payload, next) {
+
+  // 根據 jwtOptions 裡的資訊，理論上可成功解開 token，接著運用裡面的資訊查找 user。
+
+  // 剛才做 / signin 時已把 user id 放入 payload，所以此處解開 token 後，可運用 jwt_payload.id 去 User table 裡找出使用者。
+  User.findByPk(jwt_payload.id, {
+    include: [
+      { model: db.Restaurant, as: "FavoritedRestaurants" },
+      { model: db.Restaurant, as: "LikedRestaurants" },
+      { model: User, as: "Followers" },
+      { model: User, as: "Followings" }
+    ]
+  })
+    // 找到 user 後將其回傳，即可繼續在專案裡使用 req.user 得到登入 user。
+    .then(user => {
+      if (!user) {
+        return next(null, false)
+      }
+
+      return next(null, user)
+    })
+})
+
+passport.use(strategy)
+
 
 module.exports = passport
 
