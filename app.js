@@ -29,6 +29,8 @@ app.set("view engine", "handlebars")
 // (1) bodyParser
 app.use(bodyParser.urlencoded({ extended: true }))
 
+app.use(bodyParser.json())
+
 // (2) express-session
 app.use(session({ secret: "secret", resave: false, saveUninitialized: false }))
 

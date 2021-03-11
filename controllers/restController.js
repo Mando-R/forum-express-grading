@@ -241,8 +241,13 @@ const restController = {
         return res.render("topRest.handlebars", { restaurants: top10FavRest })
       })
 
-    // 寫法二、嘗試優化但失敗。嘗試方式為先直接處理 Favorite Table(用count篩選和排序)，找出 Top 10 的 RestaurantId，再以此找出 10 Restaurant。
-    // 推測效能應該較好，但出現 Top 10 Restaurant 無法依據 Favorite 數量更新的問題，研究Table結構和之前的Controller，推測主因為點擊Favotire後，Sequelize處理 Favorite Table 的速度，快於新的RestaurantId 產生(加入最愛)或減少(移除最愛)的速度。
+    // 寫法二、嘗試優化但失敗。
+    // 1.	嘗試目的(考量未來資料擴充和運作效能) ：Restaurant Table的資料很多，為避免一次處理太多Restaurant資料，不如優先處理Favorite Table，直接Group和Count，從Favorite Table抓出10筆RestaurantId，推測效能應該較好。
+    // 2.	嘗試優化方式：
+    // (1)	先直接處理 Favorite Table(用count篩選和排序) ，找出 Top 10 的 RestaurantId，
+    // (2)	再用Restaurant.findAll的where找出該 10筆 Restaurant。
+    // 3.	優化失敗原因：網頁出現 Top 10 Restaurant 無法依據 Favorite 數量更新的問題，研究Table結構和之前的Controller，推測主因為網頁點擊Favotire後，Sequelize處理 Favorite Table 的速度，快於新的RestaurantId 產生(加入最愛)或減少(移除最愛)的速度，造成 網頁的 Top 10 Restaurant名稱和排序不變。
+
     // (1) Favorite 先 count 前 10 筆 RestaurantId，之後(2) Restaurant.findAll 再撈出 該 10 筆，避免一次處理全部 Restaurant。
     // return Favorite.count({
     //   group: ["RestaurantId"]
